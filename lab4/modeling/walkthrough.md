@@ -1,46 +1,50 @@
-# Walkthrough - California Housing Price Prediction
+# Walkthrough - California Housing Price Prediction (All PAs Benchmarking)
 
-This document records the final implementation, optimizations, and results for the `modeling.ipynb` benchmarking on the California Housing dataset.
+We have successfully executed the end-to-end training pipeline on the **California Housing dataset** across the **4 newly refactored Feature Engineering scenarios**:
 
----
-
-## 1. Accomplished Work
-
-### Target Preprocessing & Model Training
-- **Target Value Processing**: Standardized `median_house_value` using `StandardScaler` directly (without log-transforming). This successfully solved convergence oscillations in SVR/Linear Regression Scratch models.
-- **Model Implementations**: Benchmarked Linear Regression Scratch (Gradient Descent), SVR Scratch (Subgradient Descent), and PyTorch MLP (Adam with Plateau Scheduler).
-- **GPU compatibility**: Handled device configurations (`.to(device)` and `.cpu().numpy()`) to allow the notebook to run seamlessly on CPU or GPU (such as Google Colab / Kaggle).
-
-### Optuna Hyperparameter Optimization
-- Replaced traditional Grid Search with **Optuna** (Bayesian Optimization) to tune SVR, Linear Regression, and MLP hyper-parameters.
-- Fixed Optuna syntax bugs (swapped low/high order parameters, and used `suggest_categorical` for discrete value lists).
-- Configured 10 trials per model, using fewer epochs (30 epochs) during MLP tuning trials for speed, and 100 epochs for the final scenario runs to ensure optimal convergence.
-
-### Output Visualizations & Formatting
-- **Learning Curves**: Plotted convergence histories for all models in the Full Features scenario. Added print logging to the PyTorch training loop to print loss and $R^2$ after each epoch.
-- **Bar Charts**: Plotted comparison charts for MAE, RMSE, MAPE, and $R^2$ across models and scenarios.
-- **Scatter Matrix (3x3)**: Plotted actual vs. predicted values for all models across all 3 scenarios.
-- **Formatted Axes**: Fixed y-axis labels on the bar charts and scatter plots to display regular numbers (with thousands separators, e.g. `500,000` USD) instead of scientific notation (`1e6`).
-- **Plot Limits**: Clipped prediction scatter axes to the realistic range `[0, 550,000]` USD, preventing a few outlier SVR predictions from compressing the chart and allowing the visual points to spread out nicely.
+- **PA1 (Base Features)**: Original features (longitude, latitude, age, and log-transformed variables).
+- **PA2 (Reduced)**: Latitude/longitude replaced by `coords_sum`. Dropped total_bedrooms and households.
+- **PA3_A (Mean Aggregation)**: Geograpy goped via `coords_sum`. Collinear features goped via arithmetic mean.
+- **PA3_B (PCA Aggregation)**: Geograpy goped via `coords_sum`. Collinear features goped via PCA 1D (`size_pc1`).
 
 ---
 
-## 2. Final Benchmarking Results
+## 1. Experimental Results (All PAs Comparison)
 
-Below is the summary table of the final Optuna-tuned models on the California Housing test split (Full Features scenario has 22 columns since the missingness indicator column was removed):
+Below is the comparative performance table on the test set:
 
 | Scenario | Model | MAE (USD) | RMSE (USD) | MAPE (%) | $R^2$ Score |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Full Features** | **PyTorch MLP** | **34,408** | **52,315** | **19.14** | **0.7911** *(Best)* |
-| (22 columns) | Linear Regression | 50,166 | 71,197 | 29.98 | 0.6132 |
-| | SVR (Scratch) | 49,676 | 73,050 | 28.05 | 0.5928 |
-| **PCA Features** | **PyTorch MLP** | 44,480 | 67,638 | 22.39 | **0.6509** |
-| (13 columns) | Linear Regression | 55,462 | 80,186 | 33.17 | 0.5093 |
-| | SVR (Scratch) | 53,091 | 79,615 | 30.17 | 0.5163 |
-| **Mutual Info Features**| **PyTorch MLP** | 36,039 | 54,338 | 20.51 | **0.7747** |
-| (Top 10 selected) | Linear Regression | 53,959 | 77,447 | 30.92 | 0.5423 |
-| | SVR (Scratch) | 51,670 | 77,552 | 27.69 | 0.5410 |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **PA1 (Base Features)** | **PyTorch MLP** | **33,801** | **50,716** | **18.94** | **0.8037** 🏆 *(Best)* |
+| (13 columns) | Random Forest Scratch | 42,254 | 59,673 | 24.42 | 0.7283 |
+| | Linear Regression | 54,395 | 72,989 | 32.22 | 0.5935 |
+| **PA2 (Reduced)** | PyTorch MLP | 38,826 | 56,709 | 22.22 | 0.7546 |
+| (10 columns) | Random Forest Scratch | 43,562 | 62,420 | 25.09 | 0.7027 |
+| | Linear Regression | 55,361 | 73,754 | 32.68 | 0.5849 |
+| **PA3_A (Mean)** | PyTorch MLP | 39,678 | 57,943 | 22.52 | 0.7438 |
+| (10 columns) | Random Forest Scratch | 44,659 | 63,596 | 25.62 | 0.6914 |
+| | Linear Regression | 55,891 | 74,637 | 32.79 | 0.5749 |
+| **PA3_B (PCA)** | PyTorch MLP | 43,866 | 63,392 | 24.63 | 0.6933 |
+| (9 columns) | Random Forest Scratch | 46,290 | 64,955 | 26.79 | 0.6780 |
+| | Linear Regression | 57,337 | 76,555 | 33.35 | 0.5528 |
 
-### Key Takeaways:
-- **Optimization Success**: SVR Scratch and Linear Regression Scratch achieve strong positive $R^2$ scores (~0.59 and ~0.61 respectively) and stable convergence.
-- **MLP Performance**: PyTorch MLP achieves the highest accuracy overall with $R^2 = 0.7911$ and MAE = 34,408 USD on Full Features.
+---
+
+## 2. Deep-Dive Findings
+
+1. **PA1 (Base Features) is the absolute winner**:
+   - **PyTorch MLP** achieves a peak **$R^2$ of 0.8037** and a very low **MAPE of 18.94%**.
+   - Keeping `longitude` and `latitude` separate is essential for deep neural networks to approximate the complex geographical boundary price variations of California.
+2. **Impact of Coordinate Goping**:
+   - Replacing coordinates with `coords_sum` decreases accuracy in all models. The drop is most severe for PyTorch MLP (dropping from 0.8037 down to 0.7546 in PA2).
+3. **PCA vs. Mean Aggregation (PA3_B vs. PA3_A)**:
+   - Arithmetic mean aggregation (**PA3_A**) preserves predictive power slightly better than PCA 1D aggregation (**PA3_B**) on this dataset (R² is ~0.74 vs. ~0.69 for MLP). 
+   - PCA 1D compresses too much detailed variance into a single dimension, losing important local block size information.
+
+---
+
+## 3. Kaggle Deployment & GPU Acceleration
+
+- **GPU Acceleration**: We updated the `train_mlp` function to run 100% on GPU (device = CUDA). Both local and Kaggle versions now push model parameters, mini-batches, and validation datasets to the GPU to speed up training.
+- **GPU Check**: Added an automatic GPU check block at the top of `modeling_kaggle.ipynb` to verify PyTorch CUDA availability and print device information (e.g. Tesla T4).
+- **Clean Workspace**: All local temporary CSV subdirectories and files have been cleaned up. The raw data can be recreated anytime by executing the feature engineering pipeline.
