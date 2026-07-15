@@ -1,0 +1,2424 @@
+=========================================
+FILE: lab1/eda/eda.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+
+# 1a. Tải dữ liệu từ tập CEAS_08.csv
+data = pd.read_csv("../data/raw/CEAS_08.csv")
+[Outputs]:
+Kích thước dữ liệu thô: 39154 hàng, 7 cột
+
+--- Code Cell 2 ---
+[Source Preview]:
+# 1c. Kiểm tra kiểu dữ liệu các cột
+print("Kiểu dữ liệu của từng cột:")
+print(data.dtypes)
+[Outputs]:
+Kiểu dữ liệu của từng cột:
+sender        str
+receiver      str
+date          str
+subject       str
+body          str
+label       int64
+urls        int64
+dtype: object
+
+--- Code Cell 3 ---
+[Source Preview]:
+# 1d. Xem trước 5 dòng dữ liệu đầu tiên và 5 dòng cuối cùng
+print("--- 5 dòng đầu tiên ---")
+display(data.head())
+
+[Outputs]:
+--- 5 dòng đầu tiên ---
+--- 5 dòng cuối cùng ---
+
+--- Code Cell 4 ---
+[Source Preview]:
+# 2a. Thống kê tổng hợp các cột thuộc tính số
+print("Thống kê tổng hợp các thuộc tính số:")
+display(data.describe())
+[Outputs]:
+Thống kê tổng hợp các thuộc tính số:
+
+--- Code Cell 5 ---
+[Source Preview]:
+# 2b. Thống kê tổng hợp các thuộc tính dạng văn bản / phân loại:
+print("Thống kê tổng hợp các thuộc tính dạng văn bản / phân loại:")
+display(data.describe(include=['O']))
+[Outputs]:
+Thống kê tổng hợp các thuộc tính dạng văn bản / phân loại:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_13184\639709389.py:3: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  display(data.describe(include=['O']))
+
+--- Code Cell 6 ---
+[Source Preview]:
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style="whitegrid")
+
+[Outputs]:
+Tỷ lệ Spam (1) / Not Spam (0) = 1.26 : 1
+→ Nhận xét: Dữ liệu phân bố cực kỳ cân bằng và đồng đều (Tỷ lệ xấp xỉ 55% vs 45%).
+
+--- Code Cell 9 ---
+[Source Preview]:
+# 4a. So sánh độ dài trung bình của email giữa Spam (1) vs Not Spam (0)
+mean_len = data.groupby('label')[['body_len_words', 'body_len_chars']].mean()
+print("Độ dài trung bình của Email theo nhãn mục tiêu:")
+print(mean_len)
+[Outputs]:
+Độ dài trung bình của Email theo nhãn mục tiêu:
+       body_len_words  body_len_chars
+label                                
+0          351.144120     2542.186287
+1           83.850838      801.379452
+
+--- Code Cell 10 ---
+[Source Preview]:
+# 4b. Box plot so sánh phân phối độ dài email theo nhãn
+plt.figure(figsize=(8, 6))
+# Giới hạn dưới 1000 từ để biểu đồ trực quan, không bị bóp méo hộp
+sns.boxplot(data=data[data['body_len_words'] < 1000], x='label', y='body_len_words',
+[Outputs]:
+count        mean         std  min   25%    50%    75%    max
+label                                                                 
+0      16433.0  241.234102  199.921758  1.0  99.0  177.0  318.0  999.0
+1      21829.0   83.202529  105.447114  1.0  20.0   42.0   90.0  999.0
+
+--- Code Cell 12 ---
+[Source Preview]:
+# 4d. Phân tích đặc trưng đặc thù: Từ đe dọa (phishing)
+import pandas as pd
+import matplotlib.pyplot as plt
+
+[Outputs]:
+Tỷ lệ % email chứa từ đe dọa theo nhãn:
+label
+0     4.135860
+1    14.028019
+Name: has_phishing, dtype: float64
+
+--- Code Cell 13 ---
+[Source Preview]:
+# 5a. Kiểm tra dữ liệu thiếu (Missing Data)
+missing_count = data.isnull().sum()
+print("=== KIỂM TRA DỮ LIỆU THIẾU ===")
+print(f"Tổng số giá trị khuyết (NaN) trong dataset: {missing_count.sum()}")
+[Outputs]:
+=== KIỂM TRA DỮ LIỆU THIẾU ===
+Tổng số giá trị khuyết (NaN) trong dataset: 462
+sender              0
+receiver          462
+date                0
+subject             0
+body                0
+label               0
+urls                0
+body_len_words      0
+body_len_chars      0
+has_phishing        0
+dtype: int64
+
+--- Code Cell 14 ---
+[Source Preview]:
+# 5b. Kiểm tra dữ liệu trùng lặp (Duplicate Data)
+dup_all = data.duplicated().sum()
+dup_content = data.duplicated(subset=['subject', 'body']).sum()
+
+[Outputs]:
+=== KIỂM TRA DỮ LIỆU TRÙNG LẶP ===
+Số dòng trùng lặp trên tất cả các cột: 0
+Số dòng trùng lặp trên nội dung (Subject + Body): 0
+
+--- Code Cell 15 ---
+[Source Preview]:
+# 5c. Phát hiện giá trị ngoại lệ (Outliers) bằng phương pháp IQR trên thuộc tính độ dài email
+print("=== KIỂM TRA GIÁ TRỊ NGOẠI LỆ (OUTLIERS) ===")
+
+Q1 = data['body_len_words'].quantile(0.25)
+[Outputs]:
+=== KIỂM TRA GIÁ TRỊ NGOẠI LỆ (OUTLIERS) ===
+Các thông số của phân bố độ dài từ trong Email Body:
+  - Q1 (25%): 35.0 từ
+  - Q3 (75%): 247.0 từ
+  - IQR: 212.0 từ
+  - Ngưỡng biên dưới (Lower bound): -283.0 từ
+  - Ngưỡng biên trên (Upper bound): 565.0 từ
+  - Số dòng có độ dài ngoại lệ: 2478 / 39154 (6.33%)
+
+--- Code Cell 17 ---
+[Source Preview]:
+# 6a. Bảng tổng kết chất lượng dữ liệu (Data Quality Summary)
+print("="*60)
+print("       BẢNG TỔNG KẾT CHẤT LƯỢNG DỮ LIỆU (DATA QUALITY)")
+print("="*60)
+[Outputs]:
+============================================================
+       BẢNG TỔNG KẾT CHẤT LƯỢNG DỮ LIỆU (DATA QUALITY)
+============================================================
+  Tổng số dòng (samples)          : 39154
+  Tổng số cột ban đầu             : 6 (không tính các cột phụ vừa tạo)
+  Cột chứa nội dung chính (body)  : body
+  Cột chứa tiêu đề (subject)      : subject
+  Cột target (biến mục tiêu)       : label (0=Not Spam, 1=Spam)
+  ─────────────────────────────────────────────────────
+  Giá trị khuyết thiếu (NaN)       : 462
+  Dòng trùng lặp nội dung          : 0
+  Số dòng có độ dài ngoại lệ (out): 2478
+  ─────────────────────────────────────────────────────
+  Phân phối nhãn mục tiêu:
+    Not Spam (0): 17312  (44.2%)
+    Spam (1)    : 21842  (55.8%)
+    → Tỷ lệ    : 1.26 : 1 (Cân bằng lý tưởng)
+============================================================
+
+--- Code Cell 18 ---
+[Source Preview]:
+# 6b. Kết luận & Ghi chú cho bước Feature Engineering tiếp theo
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+[Outputs]:
+============================================================
+    KẾT LUẬN EDA & GHI CHÚ CHO FEATURE ENGINEERING
+============================================================
+
+1. MISSING DATA (Giá trị khuyết thiếu):
+   → Phát hiện chính xác 462 giá trị khuyết thiếu (NaN) ở cột 'receiver' (người nhận).
+   → Cột 'subject' và 'body' không có dòng trống nào.
+   → Khuyến nghị: Điền khuyết cột 'receiver' bằng nhãn mới 'Unknown' ở bước Feature Engineering.
+
+2. DUPLICATE DATA (Dữ liệu trùng lặp):
+   → Kết quả quét thực tế cho thấy có 0 dòng trùng lặp nội dung (Subject + Body).
+   → Khuyến nghị: Bỏ qua bước xóa trùng lặp (drop_duplicates) để tối ưu hiệu năng.
+
+3. CLASS DISTRIBUTION (Phân phối lớp):
+   → Nhãn mục tiêu 'label' cực kỳ cân bằng: 55.8% Spam (21,842 dòng) và 44.2% Ham (17,312 dòng).
+   → Khuyến nghị: Không cần áp dụng các phương pháp cân bằng dữ liệu.
+
+4. FEATURE ENGINEERING ĐỀ XUẤT:
+   → Chuyển đổi văn bản tự do sang ma trận số bằng phương pháp TF-IDF.
+   → Tận dụng các đặc trưng hành vi và thời gian đắc lực đã được chứng minh qua EDA:
+     * 'has_phishing' (Dấu hiệu chứa các từ đe dọa: crime, attack, virus).
+
+============================================================
+
+
+=========================================
+FILE: lab1/feature egineer/feature_engineering.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+
+# Tải dữ liệu từ tập CEAS_08.csv
+[Outputs]:
+Kích thước dữ liệu thô: 39154 hàng, 7 cột
+
+--- Code Cell 2 ---
+[Source Preview]:
+# Tính toán các thuộc tính cơ bản trước khi xử lý (độ dài từ và ký tự)
+data['body'] = data['body'].fillna('')
+data['subject'] = data['subject'].fillna('')
+data['body_len_words'] = data['body'].apply(lambda x: len(x.split()))
+[Outputs]:
+Đã khởi tạo các thuộc tính cơ bản: body_len_words, body_len_chars
+
+--- Code Cell 3 ---
+[Source Preview]:
+# 1. Điền khuyết dữ liệu
+data['receiver'] = data['receiver'].fillna('Unknown')
+data['subject'] = data['subject'].fillna('')
+data['body'] = data['body'].fillna('')
+[Outputs]:
+Hoàn thành xử lý giá trị thiếu.
+
+--- Code Cell 4 ---
+[Source Preview]:
+# 2. Áp dụng phép biến đổi Log(x + 1) cho cột body_len_words để giảm skewness
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style="whitegrid")
+[Outputs]:
+Skewness trước biến đổi: 12.8894
+Skewness sau biến đổi: -0.0511
+
+--- Code Cell 5 ---
+[Source Preview]:
+# 3a. Trích xuất tên miền (Domain Extraction) từ sender và receiver
+data['sender_domain'] = data['sender'].str.split('@').str[-1].fillna('Unknown')
+data['receiver_domain'] = data['receiver'].str.split('@').str[-1].fillna('Unknown')
+
+[Outputs]:
+Hoàn thành tạo lập các đặc trưng bổ trợ.
+
+--- Code Cell 6 ---
+[Source Preview]:
+# Định nghĩa hàm làm sạch văn bản (Clean Text) dạng cơ bản
+import re
+
+def clean_email_text(text):
+[Outputs]:
+Đã hoàn thành làm sạch nội dung văn bản (body và subject)!
+
+--- Code Cell 7 ---
+[Source Preview]:
+data.head()
+[Outputs]:
+sender  \
+0                   Young Esposito <Young@iworld.de>   
+1                       Mok <ipline's1983@icable.ph>   
+2  Daily Top 10 <Karmandeep-opengevl@universalnet...   
+3                 Michael Parker <ivqrnai@pobox.com>   
+4  Gretchen Suggs <externalsep1@loanofficertool.com>   
+
+                                         receiver  \
+0                     user4@gvc.ceas-challenge.cc   
+1                   user2.2@gvc.ceas-challenge.cc   
+2                   user2.9@gvc.ceas-challenge.cc   
+3  SpamAssassin Dev <xrh@spamassassin.apache.org>   
+4                   user2.2@gvc.ceas-challenge.cc   
+
+                              date  \
+0  Tue, 05 Aug 2008 16:31:02 -0700   
+1  Tue, 05 Aug 2008 18:31:03 -0500   
+2  Tue, 05 Aug 2008 20:28:00 -1200   
+3  Tue, 05 Aug 2008 17:31:20 -0600   
+4  Tue, 05 Aug 2008 19:31:21 -0400   
+
+                                             subject  \
+0                          never agree to be a loser   
+1                             befriend jenna jameson   
+2                               cnn com daily top 10   
+3  re svn commit r619753 in spamassassin trunk li...   
+4                         specialpricespharmmoreinfo   
+
+                                                body  label  urls  \
+0  buck up your troubles caused by small dimensio...      1     1   
+1  upgrade your sex and pleasures with these tech...      1     1   
+2  the daily top 10 from cnn com top videos and s...      1     1   
+3  would anyone object to removing so from this l...      0     1   
+4                 welcomefastshippingcustomersupport      1     1   
+
+   body_len_words  body_len_chars  body_len_words_log         sender_domain  \
+0              46             273            3.850148            iworld.de>   
+1               9              82            2.302585            icable.ph>   
+2             302            3918            5.713733  universalnet.psi.br>   
+3            2660           24418            7.886457            pobox.com>   
+4               2             175            1.098612  loanofficertool.com>   
+
+            receiver_domain  has_phishing  is_reply  subject_len_words  \
+0     gvc.ceas-challenge.cc           0.0       0.0                6.0   
+1     gvc.ceas-challenge.cc           0.0       0.0                3.0   
+2     gvc.ceas-challenge.cc           1.0       0.0                4.0   
+3  spamassassin.apache.org>           0.0       1.0               10.0   
+4     gvc.ceas-challenge.cc           0.0       0.0                1.0   
+
+   caps_ratio_subject  
+0            0.040000  
+1            0.136364  
+2            0.250000  
+3            0.086667  
+4            0.153846
+
+--- Code Cell 8 ---
+[Source Preview]:
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+print("=== BƯỚC 4: CHIA TẬP DỮ LIỆU, MÃ HÓA TẦN SUẤT & CHUẨN HÓA ===")
+[Outputs]:
+=== BƯỚC 4: CHIA TẬP DỮ LIỆU, MÃ HÓA TẦN SUẤT & CHUẨN HÓA ===
+Kích thước ma trận metadata đã chuẩn hóa: (31323, 8)
+[[0.54550728 1.         0.         1.         1.         0.
+  0.07692308 0.25      ]
+ [0.42286229 1.         0.00143954 1.         0.         0.
+  0.21153846 0.09230769]
+ [0.56721314 1.         0.00191939 1.         0.         0.
+  0.19230769 0.18367347]
+ [0.28674444 1.         0.         1.         0.         0.
+  0.15384615 0.04255319]
+ [0.46467737 1.         1.         0.05290753 0.         1.
+  0.15384615 0.08510638]
+ [0.58175857 1.         0.02351248 0.00259506 0.         0.
+  0.11538462 0.1025641 ]
+ [0.18522789 1.         0.         1.         0.         1.
+  0.01923077 0.33333333]
+ [0.39086278 1.         0.04414587 0.03400064 0.         1.
+  0.21153846 0.13235294]
+ [0.57321134 1.         1.         0.03400064 0.         1.
+  0.15384615 0.06557377]
+ [0.64880216 1.         0.01487524 0.00365427 0.         0.
+  0.13461538 0.10810811]]
+
+--- Code Cell 9 ---
+[Source Preview]:
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import hstack, csr_matrix
+
+print("=== BƯỚC 5: VECTOR HÓA VĂN BẢN (TF-IDF) & GHÉP NỐI ĐẶC TRƯNG ===")
+[Outputs]:
+=== BƯỚC 5: VECTOR HÓA VĂN BẢN (TF-IDF) & GHÉP NỐI ĐẶC TRƯNG ===
+Tổng số đặc trưng trước khi lựa chọn: 5628
+
+--- Code Cell 10 ---
+[Source Preview]:
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.feature_selection import SelectKBest, chi2
+import scipy.sparse as sp
+[Outputs]:
+=== BƯỚC 6: LỰA CHỌN ĐẶC TRƯNG, THỰC NGHIỆM ĐỐI SÁNH & LƯU TRỮ ===
+Kích thước dữ liệu sau khi lựa chọn đặc trưng:
+  - X_train_final.shape: (31323, 3500)
+  - X_test_final.shape : (7831, 3500)
+
+Top 15 đặc trưng có điểm Chi-Square cao nhất:
+  1. receiver_domain_freq               : 9328.6084
+  2. is_reply                           : 7707.9101
+  3. sender_domain_freq                 : 2870.0256
+  4. tfidf_sub_python                   : 1124.1017
+  5. tfidf_sub_cnn                      : 1076.2809
+  6. tfidf_sub_top                      : 894.1513
+  7. tfidf_sub_daily                    : 787.4420
+  8. has_phishing                       : 778.4101
+  9. tfidf_body_cnn                     : 752.5935
+  10. tfidf_sub_opensuse                 : 751.4742
+  11. tfidf_sub_com                      : 715.5389
+  12. tfidf_sub_re                       : 675.7057
+  13. tfidf_body_the                     : 672.6811
+  14. tfidf_sub_10                       : 646.9882
+  15. tfidf_sub_dev                      : 633.2831
+
+--- Code Cell 11 ---
+[Source Preview]:
+print("=== TIẾN HÀNH THỰC NGHIỆM ĐỐI SÁNH LOẠI TRỪ (ABLATION STUDY) ===")
+
+import numpy as np
+import pandas as pd
+[Outputs]:
+=== TIẾN HÀNH THỰC NGHIỆM ĐỐI SÁNH LOẠI TRỪ (ABLATION STUDY) ===
+
+--- Mức 1: Có Metadata + Chọn lọc đặc trưng (k=3500) ---
+
+--- Mức 2: Có Metadata + Không Chọn lọc đặc trưng (k=Full) ---
+
+--- Mức 3: Chỉ TF-IDF thô + Không Chọn lọc đặc trưng (k=Full) ---
+
+================ BẢNG KẾT QUẢ THỰC NGHIỆM ĐỐI SÁNH ================
+                                   Kịch bản  Số Đặc Trưng  Accuracy  Precision  F1-Score      TPR      FPR  Thời gian train (ms)
+         1. Có Metadata + Chọn lọc (k=3500)          3500  0.950198   0.923388  0.956992 0.993133 0.103986             55.158138
+   2. Có Metadata + Không Chọn lọc (k=Full)          5628  0.950326   0.923585  0.957097 0.993133 0.103697             73.117256
+3. Chỉ TF-IDF thô + Không Chọn lọc (k=Full)          5620  0.919934   0.905505  0.930201 0.956283 0.125939             74.546337
+Đã lưu thành công dữ liệu đặc trưng và nhãn!
+
+--- Code Cell 12 ---
+[Source Preview]:
+# Lưu gói tiền xử lý đặc trưng
+import pickle
+
+preprocess_pack = {
+[Outputs]:
+Đã lưu thành công bộ tiền xử lý đặc trưng (preprocess_pack.pkl)!
+
+
+=========================================
+FILE: lab1/modeling/logistic.ipynb
+=========================================
+
+--- Code Cell 2 ---
+[Source Preview]:
+print("Đang tải dữ liệu đặc trưng...")
+X_train = sp.load_npz('../data/ready_train/X_train_final.npz')
+X_test = sp.load_npz('../data/ready_train/X_test_final.npz')
+y_train = pd.read_pickle('../data/ready_train/y_train.pkl').values
+[Outputs]:
+Đang tải dữ liệu đặc trưng...
+Kích thước tập huấn luyện X_train: (31323, 3500)
+Kích thước tập kiểm thử X_test   : (7831, 3500)
+
+--- Code Cell 4 ---
+[Source Preview]:
+print("=== BẮT ĐẦU GRID SEARCH TÌM SIÊU THAM SỐ TỐI ƯU ===\n")
+
+lr_candidates = [0.001, 0.01, 0.1, 0.5]
+n_iters_candidates = [500, 1000, 1500, 2000]
+[Outputs]:
+=== BẮT ĐẦU GRID SEARCH TÌM SIÊU THAM SỐ TỐI ƯU ===
+lr = 0.001 | n_iters = 500  | Test Accuracy: 81.66% | Final Loss: 0.6535 | Thời gian: 5.55s
+lr = 0.001 | n_iters = 1000 | Test Accuracy: 82.11% | Final Loss: 0.6196 | Thời gian: 11.03s
+lr = 0.001 | n_iters = 1500 | Test Accuracy: 83.35% | Final Loss: 0.5902 | Thời gian: 17.48s
+lr = 0.001 | n_iters = 2000 | Test Accuracy: 87.03% | Final Loss: 0.5641 | Thời gian: 22.79s
+lr = 0.01  | n_iters = 500  | Test Accuracy: 94.98% | Final Loss: 0.4535 | Thời gian: 5.83s
+lr = 0.01  | n_iters = 1000 | Test Accuracy: 95.02% | Final Loss: 0.3546 | Thời gian: 12.01s
+lr = 0.01  | n_iters = 1500 | Test Accuracy: 95.05% | Final Loss: 0.3015 | Thời gian: 8.76s
+lr = 0.01  | n_iters = 2000 | Test Accuracy: 95.05% | Final Loss: 0.2687 | Thời gian: 22.67s
+lr = 0.1   | n_iters = 500  | Test Accuracy: 95.07% | Final Loss: 0.1932 | Thời gian: 5.88s
+lr = 0.1   | n_iters = 1000 | Test Accuracy: 95.07% | Final Loss: 0.1577 | Thời gian: 11.87s
+lr = 0.1   | n_iters = 1500 | Test Accuracy: 95.07% | Final Loss: 0.1410 | Thời gian: 17.04s
+lr = 0.1   | n_iters = 2000 | Test Accuracy: 95.20% | Final Loss: 0.1301 | Thời gian: 23.98s
+lr = 0.5   | n_iters = 500  | Test Accuracy: 95.31% | Final Loss: 0.1218 | Thời gian: 6.16s
+lr = 0.5   | n_iters = 1000 | Test Accuracy: 96.18% | Final Loss: 0.0972 | Thời gian: 12.07s
+lr = 0.5   | n_iters = 1500 | Test Accuracy: 96.85% | Final Loss: 0.0837 | Thời gian: 18.70s
+lr = 0.5   | n_iters = 2000 | Test Accuracy: 97.46% | Final Loss: 0.0747 | Thời gian: 22.56s
+
+=== ĐANG VẼ BIỂU ĐỒ HỘI TỤ VỚI N_ITERS = 2000 ===
+=> Siêu tham số tốt nhất được lựa chọn: lr = 0.5, n_iters = 2000 (Độ chính xác: 97.46%)
+
+--- Code Cell 5 ---
+[Source Preview]:
+print(f"Huấn luyện mô hình tối ưu với lr = {best_lr} trong {best_n_iters} vòng lặp...")
+lr_optimal = LogisticRegressionFromScratch(lr=best_lr, n_iters=best_n_iters)
+
+# Đo thời gian huấn luyện (fit)
+[Outputs]:
+Huấn luyện mô hình tối ưu với lr = 0.5 trong 2000 vòng lặp...
+Thời gian huấn luyện (fit): 22305.23 ms
+Thời gian dự báo (predict): 2.01 ms
+
+--- Code Cell 6 ---
+[Source Preview]:
+print("\n=== ĐÁNH GIÁ ĐỐI SÁNH HIỆU NĂNG THEO CÁC NGƯỠNG QUYẾT ĐỊNH ===")
+
+from sklearn.metrics import classification_report, confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
+import matplotlib.pyplot as plt
+[Outputs]:
+=== ĐÁNH GIÁ ĐỐI SÁNH HIỆU NĂNG THEO CÁC NGƯỠNG QUYẾT ĐỊNH ===
+--- KẾT QUẢ QUÉT NGƯỠNG TỐI ƯU ---
+Ngưỡng tối ưu theo F1-score: 0.7980 (F1-score = 0.9851)
+Tại ngưỡng này: Precision = 0.9946, Recall = 0.9757, Accuracy = 0.9835
+
+=== BẢNG THEO DÕI QUÁ TRÌNH TỐI ƯU HÓA NGƯỠNG (BƯỚC 0.05) ===
+ Threshold  Precision  Recall  F1-Score  Accuracy Optimal
+    0.0000     0.5579  1.0000    0.7162    0.5579        
+    0.0505     0.9128  0.9986    0.9538    0.9460        
+    0.1010     0.9253  0.9979    0.9602    0.9539        
+    0.1515     0.9283  0.9952    0.9606    0.9544        
+    0.2020     0.9318  0.9940    0.9619    0.9561        
+    0.2525     0.9370  0.9934    0.9643    0.9590        
+    0.3030     0.9420  0.9929    0.9668    0.9619        
+    0.3535     0.9476  0.9924    0.9695    0.9651        
+    0.4040     0.9527  0.9906    0.9713    0.9673        
+    0.4545     0.9594  0.9888    0.9739    0.9704        
+    0.5051     0.9692  0.9872    0.9781    0.9754        
+    0.5556     0.9729  0.9863    0.9795    0.9770        
+    0.6061     0.9777  0.9854    0.9815    0.9793        
+    0.6566     0.9842  0.9824    0.9833    0.9814        
+    0.7071     0.9869  0.9810    0.9839    0.9821        
+    0.7576     0.9914  0.9776    0.9844    0.9828        
+    0.7980     0.9946  0.9757    0.9851    0.9835        
+    0.8081     0.9951  0.9739    0.9844    0.9828        
+    0.8586     0.9967  0.9631    0.9796    0.9777        
+    0.9091     0.9985  0.9224    0.9590    0.9559        
+    0.9596     1.0000  0.6867    0.8142    0.8252        
+
+=== BÁO CÁO PHÂN LOẠI CHI TIẾT (THRESHOLD = 0.5 - MẶC ĐỊNH) ===
+              precision    recall  f1-score   support
+
+    Spam (1)       0.97      0.99      0.98      4369
+Not Spam (0)       0.98      0.96      0.97      3462
+
+    accuracy                           0.97      7831
+   macro avg       0.98      0.97      0.97      7831
+weighted avg       0.97      0.97      0.97      7831
+
+
+=== BÁO CÁO PHÂN LOẠI CHI TIẾT (THRESHOLD = 0.7980 - TỐI ƯU F1) ===
+              precision    recall  f1-score   support
+
+    Spam (1)       0.99      0.98      0.99      4369
+Not Spam (0)       0.97      0.99      0.98      3462
+
+    accuracy                           0.98      7831
+   macro avg       0.98      0.98      0.98      7831
+weighted avg       0.98      0.98      0.98      7831
+
+--- Code Cell 8 ---
+[Source Preview]:
+import pickle
+
+# Sử dụng ngưỡng tối ưu tìm được từ bước quét ngưỡng (nếu không có thì mặc định 0.5)
+best_threshold = best_t if 'best_t' in globals() else 0.5
+[Outputs]:
+Đã lưu thành công mô hình và threshold tối ưu (0.7980)!
+
+
+=========================================
+FILE: lab2/eda/eda.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import kagglehub
+import shutil
+import os
+# Download latest version
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Programs\Python\Python312\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Path to dataset files: C:\Users\Win 11\.cache\kagglehub\datasets\ahmedmohamed2003\retail-store-sales-dirty-for-data-cleaning\versions\1
+Dữ liệu đã được lưu tại: C:\Users\Win 11\Documents\ML\ML_proj_26\lab2\data\raw
+
+--- Code Cell 2 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+[Outputs]:
+Kích thước dữ liệu: 12575 dòng, 11 cột
+--------------------------------------------------
+<class 'pandas.DataFrame'>
+RangeIndex: 12575 entries, 0 to 12574
+Data columns (total 11 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   Transaction ID    12575 non-null  str    
+ 1   Customer ID       12575 non-null  str    
+ 2   Category          12575 non-null  str    
+ 3   Item              11362 non-null  str    
+ 4   Price Per Unit    11966 non-null  float64
+ 5   Quantity          11971 non-null  float64
+ 6   Total Spent       11971 non-null  float64
+ 7   Payment Method    12575 non-null  str    
+ 8   Location          12575 non-null  str    
+ 9   Transaction Date  12575 non-null  str    
+ 10  Discount Applied  8376 non-null   object 
+dtypes: float64(3), object(1), str(7)
+memory usage: 1.9+ MB
+None
+
+--- Code Cell 3 ---
+[Source Preview]:
+# 5 dòng đầu tiên
+print('--- 5 Dòng Đầu ---')
+display(df.head())
+
+[Outputs]:
+--- 5 Dòng Đầu ---
+--- 5 Dòng Cuối ---
+--- 5 Dòng Ngẫu Nhiên ---
+
+--- Code Cell 4 ---
+[Source Preview]:
+# Thống kê tổng hợp cho thuộc tính số
+print('--- Thống kê các cột số ---')
+display(df.describe())
+
+[Outputs]:
+--- Thống kê các cột số ---
+--- Thống kê các cột chữ/danh mục ---
+
+--- Code Cell 5 ---
+[Source Preview]:
+for col in ['Category', 'Payment Method', 'Location', 'Discount Applied']:
+    print(f'=== Tần suất cột: {col} ===')
+    val_counts = df[col].value_counts(dropna=False)
+    pcts = df[col].value_counts(dropna=False, normalize=True) * 100
+[Outputs]:
+=== Tần suất cột: Category ===
+=== Tần suất cột: Payment Method ===
+=== Tần suất cột: Location ===
+=== Tần suất cột: Discount Applied ===
+
+
+--- Code Cell 7 ---
+[Source Preview]:
+cat_cols = ['Category', 'Payment Method', 'Location', 'Discount Applied']
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+axes = axes.flatten()
+
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2888913154.py:8: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(y=temp_series, ax=axes[i], palette='viridis', order=temp_series.value_counts().index)
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2888913154.py:8: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(y=temp_series, ax=axes[i], palette='viridis', order=temp_series.value_counts().index)
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2888913154.py:8: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(y=temp_series, ax=axes[i], palette='viridis', order=temp_series.value_counts().index)
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2888913154.py:8: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(y=temp_series, ax=axes[i], palette='viridis', order=temp_series.value_counts().index)
+
+--- Code Cell 9 ---
+[Source Preview]:
+# 2. Phân phối Quantity theo Location và Payment Method
+fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+sns.boxplot(data=df, x='Location', y='Quantity', ax=axes[0], palette='pastel')
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2152239392.py:4: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Location', y='Quantity', ax=axes[0], palette='pastel')
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\2152239392.py:7: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Payment Method', y='Quantity', ax=axes[1], palette='pastel')
+
+--- Code Cell 10 ---
+[Source Preview]:
+fig, axes = plt.subplots(2, 1, figsize=(14, 12))
+
+sns.boxplot(data=df, x='Category', y='Quantity', ax=axes[0], palette='Set2')
+axes[0].set_title('Phân phối Quantity theo Category', fontsize=14)
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\3547004256.py:3: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Category', y='Quantity', ax=axes[0], palette='Set2')
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5996\3547004256.py:7: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Category', y='Total Spent', ax=axes[1], palette='Set2')
+
+--- Code Cell 12 ---
+[Source Preview]:
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
+
+# Loại bỏ giá trị thiếu để tính toán VIF
+[Outputs]:
+=== CHỈ SỐ VIF GIỮA 3 BIẾN SỐ LIÊN TỤC ===
+
+--- Code Cell 13 ---
+[Source Preview]:
+# 1. Kiểm tra dữ liệu trùng lặp
+dup_count = df.duplicated().sum()
+txn_dup_count = df['Transaction ID'].duplicated().sum()
+print(f'Số lượng bản ghi trùng lặp hoàn toàn: {dup_count}')
+[Outputs]:
+Số lượng bản ghi trùng lặp hoàn toàn: 0
+Số lượng Transaction ID bị trùng lặp: 0
+--------------------------------------------------
+--- Thống kê dữ liệu khuyết thiếu ---
+
+--- Code Cell 15 ---
+[Source Preview]:
+# 1. Tính toán số liệu chất lượng dữ liệu
+total_rows = len(df)
+
+# A. Thiếu dữ liệu (Missing)
+[Outputs]:
+Tổng số dòng: 12,575
+- Khuyết thiếu ít nhất 1 ô: 4,996 (39.73%) | Đầy đủ: 7,579 (60.27%)
+- Trùng lặp hoàn toàn: 0 (0.00%) | Duy nhất: 12,575 (100.00%)
+- Ngoại lệ (cột Total Spent): 60 (0.48%) | Bình thường: 12,515 (99.52%)
+
+
+=========================================
+FILE: lab2/feature_engineer/feature_engineering.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+[Outputs]:
+=== KÍCH THƯỚC DỮ LIỆU THÔ ===
+Số dòng: 12,575 | Số cột: 11
+Tập huấn luyện (Train): (10060, 11)
+Tập kiểm thử (Test): (2515, 11)
+
+--- Code Cell 2 ---
+[Source Preview]:
+# 1. Khôi phục Price Per Unit bằng Total Spent / Quantity trước
+def impute_price(row):
+    if pd.isnull(row['Price Per Unit']) and not pd.isnull(row['Quantity']) and not pd.isnull(row['Total Spent']):
+        return row['Total Spent'] / row['Quantity']
+[Outputs]:
+Median Price Per Unit: 23.0000
+Median Total Spent: 108.5000
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Tạo bản đồ liên kết (Category, Price) -> Item từ tập Train
+lookup_df = train_df.dropna(subset=['Item', 'Price Per Unit'])
+item_map = lookup_df.groupby(['Category', 'Price Per Unit'])['Item'].first().to_dict()
+
+[Outputs]:
+Mode Item dùng điền khuyết: "Item_2_BEV"
+
+--- Code Cell 4 ---
+[Source Preview]:
+train_df = train_df.dropna(subset=['Quantity'])
+test_df = test_df.dropna(subset=['Quantity'])
+
+train_df['Discount Applied'] = train_df['Discount Applied'].fillna(False).astype(int)
+[Outputs]:
+=== KIỂM TRA SỐ LƯỢNG Ô KHUYẾT CỦA TẬP TRAIN SAU BƯỚC LÀM SẠCH ===
+Transaction ID      0
+Customer ID         0
+Category            0
+Item                0
+Price Per Unit      0
+Quantity            0
+Total Spent         0
+Payment Method      0
+Location            0
+Transaction Date    0
+Discount Applied    0
+dtype: int64
+
+--- Code Cell 9 ---
+[Source Preview]:
+cols_to_drop_base = ['Transaction ID', 'Customer ID', 'Category', 'Item', 'Transaction Date']
+output_dir = '../data/ready_train/'
+os.makedirs(output_dir, exist_ok=True)
+
+[Outputs]:
+- Da luu kịch bản ready (Shape Train: (9577, 17) | Shape Test: (2394, 17))
+
+=== CÁC CỘT VÀ BẢN GHI MẪU SAU KHI CHUẨN HÓA (KỊCH BẢN C1) ===
+- Da luu kịch bản median_c2 (Shape Train: (9577, 16) | Shape Test: (2394, 16))
+Explained Variance Ratio of PC1: 0.8154
+- Da luu kịch bản median_c3 (Shape Train: (9577, 16) | Shape Test: (2394, 16))
+
+--- Code Cell 10 ---
+[Source Preview]:
+def export_mean_datasets():
+    # Chia train/test độc lập để tránh rò rỉ dữ liệu
+    tr, te = train_test_split(df, test_size=0.2, random_state=42)
+    tr, te = tr.copy(), te.copy()
+[Outputs]:
+- Da luu kịch bản mean_c1 (Shape Train: (9577, 17) | Shape Test: (2394, 17))
+- Da luu kịch bản mean_c2 (Shape Train: (9577, 16) | Shape Test: (2394, 16))
+- Da luu kịch bản mean_c3 (Shape Train: (9577, 16) | Shape Test: (2394, 16))
+
+=== THƯ MỤC CÁC FILE ĐẦU RA READY_TRAIN ===
+['test_mean_c1.csv', 'test_mean_c2.csv', 'test_mean_c3.csv', 'test_median_c1.csv', 'test_median_c2.csv', 'test_median_c3.csv', 'test_ready.csv', 'test_ready_c1.csv', 'test_ready_c2.csv', 'test_ready_c3.csv', 'train_mean_c1.csv', 'train_mean_c2.csv', 'train_mean_c3.csv', 'train_median_c1.csv', 'train_median_c2.csv', 'train_median_c3.csv', 'train_ready.csv', 'train_ready_c1.csv', 'train_ready_c2.csv', 'train_ready_c3.csv']
+
+
+=========================================
+FILE: lab2/modeling/modeling.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+[Outputs]:
+Đã nạp thành công cả 6 cấu hình dữ liệu!
+
+--- Code Cell 4 ---
+[Source Preview]:
+import time
+
+learning_rates = [0.001, 0.005, 0.01, 0.05]
+lamdas = [0.001, 0.01, 0.1]
+[Outputs]:
+Đã huấn luyện xong cấu hình: mean_c1 (Best params: {'lr': 0.05, 'lamda': 0.001})
+Đã huấn luyện xong cấu hình: mean_c2 (Best params: {'lr': 0.001, 'lamda': 0.1})
+Đã huấn luyện xong cấu hình: mean_c3 (Best params: {'lr': 0.005, 'lamda': 0.01})
+Đã huấn luyện xong cấu hình: ready (Best params: {'lr': 0.05, 'lamda': 0.001})
+Đã huấn luyện xong cấu hình: median_c2 (Best params: {'lr': 0.001, 'lamda': 0.1})
+Đã huấn luyện xong cấu hình: median_c3 (Best params: {'lr': 0.005, 'lamda': 0.01})
+
+--- Code Cell 8 ---
+[Source Preview]:
+comparison_df = pd.DataFrame(results).T
+print('=== BẢNG SO SÁNH HIỆU NĂNG TỔNG HỢP (6 CẤU HÌNH) ===')
+display(comparison_df)
+
+[Outputs]:
+=== BẢNG SO SÁNH HIỆU NĂNG TỔNG HỢP (6 CẤU HÌNH) ===
+
+--- Code Cell 9 ---
+[Source Preview]:
+model_path = 'best_svm_model.pkl'
+with open(model_path, 'wb') as f:
+    pickle.dump(best_models['ready'], f)
+
+[Outputs]:
+Mô hình tốt nhất đã được lưu thành công tại: C:\Users\Win 11\Documents\ML\ML_proj_26\lab2\modeling\best_svm_model.pkl
+
+
+=========================================
+FILE: lab3/additional/image_segmentation.ipynb
+=========================================
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Resize ảnh về chiều rộng 400px (đảm bảo độ sắc nét cao, không bị vỡ ảnh pixel thô)
+height, width, _ = img_rgb.shape
+new_width = 400
+new_height = int(height * (new_width / width))
+[Outputs]:
+Ảnh gốc: 1920x1080 -> Ảnh sau khi resize: 400x225
+Mảng phẳng hóa RGB có kích thước: (90000, 3)
+
+--- Code Cell 4 ---
+[Source Preview]:
+# Chạy khảo sát Elbow và Silhouette từ K=1 đến K=8 trên không gian màu RGB
+from sklearn.metrics import silhouette_score
+
+inertia_list = []
+[Outputs]:
+Khảo sát chất lượng phân cụm từ K=1 đến K=8:
+K = 1 | Inertia = 13201.4708 | Silhouette Score = N/A
+K = 2 | Inertia = 4982.3709 | Silhouette Score (Mẫu) = 0.5163
+K = 3 | Inertia = 2560.3675 | Silhouette Score (Mẫu) = 0.5102
+K = 4 | Inertia = 1794.9966 | Silhouette Score (Mẫu) = 0.4616
+K = 5 | Inertia = 1416.9737 | Silhouette Score (Mẫu) = 0.4666
+K = 6 | Inertia = 1113.6783 | Silhouette Score (Mẫu) = 0.4583
+K = 7 | Inertia = 967.9242 | Silhouette Score (Mẫu) = 0.4403
+K = 8 | Inertia = 830.8235 | Silhouette Score (Mẫu) = 0.4400
+
+
+=========================================
+FILE: lab3/eda/eda.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import kagglehub
+import shutil
+import os
+
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Programs\Python\Python312\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Dữ liệu đã được lưu tại: C:\Users\Win 11\Documents\ML\ML_proj_26\lab3\data\raw
+
+--- Code Cell 2 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+[Outputs]:
+Kích thước bộ dữ liệu: 15,079 hàng, 5 cột
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Xem thông tin kiểu dữ liệu và số lượng non-null
+df.info()
+[Outputs]:
+<class 'pandas.DataFrame'>
+RangeIndex: 15079 entries, 0 to 15078
+Data columns (total 5 columns):
+ #   Column          Non-Null Count  Dtype
+---  ------          --------------  -----
+ 0   Customer ID     15079 non-null  str  
+ 1   Age             15079 non-null  int64
+ 2   Gender          15079 non-null  str  
+ 3   Annual Income   15079 non-null  int64
+ 4   Spending Score  15079 non-null  int64
+dtypes: int64(3), str(2)
+memory usage: 1.2 MB
+
+--- Code Cell 4 ---
+[Source Preview]:
+# Xem 5 dòng đầu tiên
+df.head()
+[Outputs]:
+Customer ID  Age  Gender  Annual Income  \
+0  d410ea53-6661-42a9-ad3a-f554b05fd2a7   30    Male         151479   
+1  1770b26f-493f-46b6-837f-4237fb5a314e   58  Female         185088   
+2  e81aa8eb-1767-4b77-87ce-1620dc732c5e   62  Female          70912   
+3  9795712a-ad19-47bf-8886-4f997d6046e3   23    Male          55460   
+4  64139426-2226-4cd6-bf09-91bce4b4db5e   24    Male         153752   
+
+   Spending Score  
+0              89  
+1              95  
+2              76  
+3              57  
+4              76
+
+--- Code Cell 5 ---
+[Source Preview]:
+# Xem 5 dòng cuối cùng
+df.tail()
+[Outputs]:
+Customer ID  Age  Gender  Annual Income  \
+15074  a0504768-a85f-4930-ac24-55bc8e4fec9e   29  Female          97723   
+15075  a08c4e0e-d1fe-48e7-9366-aab11ae409cd   22    Male          73361   
+15076  0e87c25a-268c-401a-8ba1-7111dcde6f1a   18  Female         112337   
+15077  5f388cbe-3373-4e16-b743-38f508f2249f   26  Female          94312   
+15078  b8b8f561-ebca-4401-8afe-544c906554ba   19    Male          78045   
+
+       Spending Score  
+15074              30  
+15075              74  
+15076              48  
+15077               5  
+15078               2
+
+--- Code Cell 6 ---
+[Source Preview]:
+# Xem ngẫu nhiên 5 dòng dữ liệu
+df.sample(5, random_state=42)
+[Outputs]:
+Customer ID  Age  Gender  Annual Income  \
+5404   73ebeee3-01c6-4ffc-8a7f-bf81391443a4   44  Female         167902   
+3613   81a16720-019a-4bc7-91c4-1e04e69d81d5   39  Female         102743   
+12127  e1034276-ecee-4b46-85e8-8d423f7f035e   48  Female         116714   
+9941   009dcc8f-bc1f-4476-8996-3b5d5ddaaebe   73    Male          98545   
+5221   cb8f9402-8952-43c6-be01-e5c6c1062d90   34  Female         119152   
+
+       Spending Score  
+5404               82  
+3613               26  
+12127              47  
+9941               10  
+5221               33
+
+--- Code Cell 7 ---
+[Source Preview]:
+# Thống kê mô tả các biến số (Numerical Features)
+df.describe()
+[Outputs]:
+Age  Annual Income  Spending Score
+count  15079.000000   15079.000000    15079.000000
+mean      54.191591  109742.880562       50.591617
+std       21.119207   52249.425866       28.726977
+min       18.000000   20022.000000        1.000000
+25%       36.000000   64141.000000       26.000000
+50%       54.000000  109190.000000       51.000000
+75%       72.000000  155008.000000       75.000000
+max       90.000000  199974.000000      100.000000
+
+--- Code Cell 8 ---
+[Source Preview]:
+# Thống kê mô tả các biến phân loại (Categorical Features)
+df.describe(include=['O'])
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_20904\3568426033.py:2: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  df.describe(include=['O'])
+Customer ID Gender
+count                                  15079  15079
+unique                                 15079      2
+top     d410ea53-6661-42a9-ad3a-f554b05fd2a7   Male
+freq                                       1   7595
+
+--- Code Cell 10 ---
+[Source Preview]:
+# 2. Phân tích biến phân loại Gender
+plt.figure(figsize=(6, 4))
+gender_counts = df['Gender'].value_counts()
+sns.barplot(x=gender_counts.index, y=gender_counts.values, palette='pastel')
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_20904\4116122860.py:4: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.barplot(x=gender_counts.index, y=gender_counts.values, palette='pastel')
+
+--- Code Cell 12 ---
+[Source Preview]:
+# 2. So sánh Annual Income và Spending Score theo Gender sử dụng Box plot
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Gender vs Annual Income
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_20904\3159463846.py:5: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Gender', y='Annual Income', palette='pastel', ax=axes[0])
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_20904\3159463846.py:11: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=df, x='Gender', y='Spending Score', palette='pastel', ax=axes[1])
+
+--- Code Cell 14 ---
+[Source Preview]:
+# 1. Kiểm tra dữ liệu thiếu và trùng lặp
+print("--- DỮ LIỆU THIẾU ---")
+print(df.isnull().sum())
+print(f"\nSố lượng dòng trùng lặp hoàn toàn: {df.duplicated().sum()} dòng")
+[Outputs]:
+--- DỮ LIỆU THIẾU ---
+Customer ID       0
+Age               0
+Gender            0
+Annual Income     0
+Spending Score    0
+dtype: int64
+
+Số lượng dòng trùng lặp hoàn toàn: 0 dòng
+Số lượng ID khách hàng duy nhất: 15,079
+
+--- NGOẠI LỆ CHO CỘT: Age ---
+Khoảng IQR không ngoại lệ: [-18.00, 126.00]
+Số lượng ngoại lệ (IQR): 0 (0.00%)
+
+--- NGOẠI LỆ CHO CỘT: Annual Income ---
+Khoảng IQR không ngoại lệ: [-72159.50, 291308.50]
+Số lượng ngoại lệ (IQR): 0 (0.00%)
+
+--- NGOẠI LỆ CHO CỘT: Spending Score ---
+Khoảng IQR không ngoại lệ: [-47.50, 148.50]
+Số lượng ngoại lệ (IQR): 0 (0.00%)
+
+--- Code Cell 15 ---
+[Source Preview]:
+# Tạo bảng DataFrame tổng hợp chất lượng dữ liệu và đề xuất xử lý tiếp theo
+summary_data = []
+
+for col in df.columns:
+[Outputs]:
+Cột Kiểu dữ liệu  Số dòng thiếu Tỷ lệ thiếu (%)  \
+0     Customer ID          str              0           0.00%   
+1             Age        int64              0           0.00%   
+2          Gender          str              0           0.00%   
+3   Annual Income        int64              0           0.00%   
+4  Spending Score        int64              0           0.00%   
+
+   Số giá trị duy nhất  Số lượng ngoại lệ  \
+0                15079  N/A (Categorical)   
+1                   73            0 (IQR)   
+2                    2  N/A (Categorical)   
+3                14441            0 (IQR)   
+4                  100            0 (IQR)   
+
+                         Đề xuất tiền xử lý (Action)  
+0  Bỏ qua / Chỉ dùng để định danh khách hàng (Cus...  
+1  Giữ nguyên hoặc Chia nhóm (Age Binning) nếu cầ...  
+2                Label Encoding (Male: 1, Female: 0)  
+3  MinMaxScaler / StandardScaler (Quan trọng để t...  
+4  MinMaxScaler / StandardScaler (Quan trọng để t...
+
+
+=========================================
+FILE: lab3/feature_engineer/feature_engineer.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+import os
+[Outputs]:
+Số lượng giá trị khuyết thiếu:
+Customer ID       0
+Age               0
+Gender            0
+Annual Income     0
+Spending Score    0
+dtype: int64
+
+=> Nhận xét: Bộ dữ liệu hoàn toàn sạch, không có giá trị khuyết thiếu. Không cần xử lý điền khuyết (Imputation).
+
+--- Code Cell 2 ---
+[Source Preview]:
+# Kiểm tra outliers dựa trên IQR
+def check_outliers(series):
+    q1 = series.quantile(0.25)
+    q3 = series.quantile(0.75)
+[Outputs]:
+Số lượng ngoại lệ cột Age: 0
+Số lượng ngoại lệ cột Annual Income: 0
+Số lượng ngoại lệ cột Spending Score: 0
+
+=> Nhận xét: Không có điểm ngoại lệ nào vượt quá ngưỡng 1.5 * IQR. Dữ liệu cực kỳ đồng đều, không cần cắt tỉa hay giới hạn biên (Winsorization/Capping).
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Tạo cột mới Gender_encoded: Male -> 1, Female -> 0
+df['Gender_encoded'] = df['Gender'].map({'Male': 1, 'Female': 0})
+print("Tỷ lệ phân bố của giới tính sau mã hóa:")
+print(df['Gender_encoded'].value_counts())
+[Outputs]:
+Tỷ lệ phân bố của giới tính sau mã hóa:
+Gender_encoded
+1    7595
+0    7484
+Name: count, dtype: int64
+Customer ID  Age  Gender  Annual Income  \
+0  d410ea53-6661-42a9-ad3a-f554b05fd2a7   30    Male         151479   
+1  1770b26f-493f-46b6-837f-4237fb5a314e   58  Female         185088   
+2  e81aa8eb-1767-4b77-87ce-1620dc732c5e   62  Female          70912   
+3  9795712a-ad19-47bf-8886-4f997d6046e3   23    Male          55460   
+4  64139426-2226-4cd6-bf09-91bce4b4db5e   24    Male         153752   
+
+   Spending Score  Gender_encoded  
+0              89               1  
+1              95               0  
+2              76               0  
+3              57               1  
+4              76               1
+
+--- Code Cell 4 ---
+[Source Preview]:
+# Khởi tạo bộ chuẩn hóa Z-score
+scaler = StandardScaler()
+
+# Tiến hành chuẩn hóa các cột số gốc
+[Outputs]:
+Dữ liệu sau khi chuẩn hóa Z-score (5 dòng đầu):
+Age_scaled  Annual Income_scaled  Spending Score_scaled
+0   -1.145516              0.798813               1.337059
+1    0.180335              1.442076               1.545929
+2    0.369742             -0.743208               0.884507
+3   -1.476979             -1.038953               0.223086
+4   -1.429627              0.842317               0.884507
+
+--- Code Cell 5 ---
+[Source Preview]:
+# 1. Tạo biến mới biểu thị tỷ lệ điểm chi tiêu trên thu nhập
+df['Spending_to_Income_Ratio'] = df['Spending Score'] / df['Annual Income']
+
+# 2. Chuẩn hóa biến mới tạo
+[Outputs]:
+Thống kê mô tả của Spending_to_Income_Ratio:
+count    15079.000000
+mean         0.000651
+std          0.000659
+min          0.000005
+25%          0.000238
+50%          0.000462
+75%          0.000797
+max          0.004867
+Name: Spending_to_Income_Ratio, dtype: float64
+Customer ID  Age  Gender  Annual Income  \
+0  d410ea53-6661-42a9-ad3a-f554b05fd2a7   30    Male         151479   
+1  1770b26f-493f-46b6-837f-4237fb5a314e   58  Female         185088   
+2  e81aa8eb-1767-4b77-87ce-1620dc732c5e   62  Female          70912   
+3  9795712a-ad19-47bf-8886-4f997d6046e3   23    Male          55460   
+4  64139426-2226-4cd6-bf09-91bce4b4db5e   24    Male         153752   
+
+   Spending Score  Gender_encoded  Age_scaled  Annual Income_scaled  \
+0              89               1   -1.145516              0.798813   
+1              95               0    0.180335              1.442076   
+2              76               0    0.369742             -0.743208   
+3              57               1   -1.476979             -1.038953   
+4              76               1   -1.429627              0.842317   
+
+   Spending Score_scaled  Spending_to_Income_Ratio  \
+0               1.337059                  0.000588   
+1               1.545929                  0.000513   
+2               0.884507                  0.001072   
+3               0.223086                  0.001028   
+4               0.884507                  0.000494   
+
+   Spending_to_Income_Ratio_scaled  
+0                        -0.095878  
+1                        -0.208511  
+2                         0.638431  
+3                         0.571730  
+4                        -0.237274
+
+--- Code Cell 6 ---
+[Source Preview]:
+# 1. Chọn danh sách đặc trưng cuối cùng cho mô hình phân cụm
+final_features = [
+    'Customer ID',
+    'Gender_encoded',
+[Outputs]:
+Dữ liệu huấn luyện đã được lưu thành công tại: C:\Users\Win 11\Documents\ML\ML_proj_26\lab3\data\ready_train\shopping_mall_preprocessed.csv
+Đặc trưng       Kiểu gốc Kiểu biến đổi  \
+0                      Customer ID            str           str   
+1                   Gender_encoded            str           int   
+2                       Age_scaled          int64       float64   
+3             Annual Income_scaled          int64       float64   
+4            Spending Score_scaled          int64       float64   
+5  Spending_to_Income_Ratio_scaled  N/A (Tạo mới)       float64   
+
+                         Phép biến đổi        Vai trò trong mô hình  
+0                           Giữ nguyên              Định danh (Key)  
+1  Binary Mapping (Male: 1, Female: 0)  Đặc trưng đầu vào (Feature)  
+2                       StandardScaler  Đặc trưng đầu vào (Feature)  
+3                       StandardScaler  Đặc trưng đầu vào (Feature)  
+4                       StandardScaler  Đặc trưng đầu vào (Feature)  
+5               Ratio & StandardScaler  Đặc trưng đầu vào (Feature)
+
+
+=========================================
+FILE: lab3/modeling/modeling.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+[Outputs]:
+Kích thước dữ liệu: 15,079 hàng, 6 cột
+Các cột đặc trưng:  ['Customer ID', 'Gender_encoded', 'Age_scaled', 'Annual Income_scaled', 'Spending Score_scaled', 'Spending_to_Income_Ratio_scaled']
+Customer ID  Gender_encoded  Age_scaled  \
+0  d410ea53-6661-42a9-ad3a-f554b05fd2a7               1   -1.145516   
+1  1770b26f-493f-46b6-837f-4237fb5a314e               0    0.180335   
+2  e81aa8eb-1767-4b77-87ce-1620dc732c5e               0    0.369742   
+3  9795712a-ad19-47bf-8886-4f997d6046e3               1   -1.476979   
+4  64139426-2226-4cd6-bf09-91bce4b4db5e               1   -1.429627   
+
+   Annual Income_scaled  Spending Score_scaled  \
+0              0.798813               1.337059   
+1              1.442076               1.545929   
+2             -0.743208               0.884507   
+3             -1.038953               0.223086   
+4              0.842317               0.884507   
+
+   Spending_to_Income_Ratio_scaled  
+0                        -0.095878  
+1                        -0.208511  
+2                         0.638431  
+3                         0.571730  
+4                        -0.237274
+
+--- Code Cell 3 ---
+[Source Preview]:
+spaces = {
+    '2D (Core)': ['Annual Income_scaled', 'Spending Score_scaled'],
+    '3D (Demographics)': ['Age_scaled', 'Annual Income_scaled', 'Spending Score_scaled'],
+    '3D (Ratio)': ['Annual Income_scaled', 'Spending Score_scaled', 'Spending_to_Income_Ratio_scaled'],
+[Outputs]:
+Space  K  Silhouette  Calinski-Harabasz  Davies-Bouldin  \
+0           2D (Core)  2    0.357152        8972.246552        1.193219   
+1           2D (Core)  3    0.376450       11410.653514        0.871145   
+2           2D (Core)  4    0.411681       15049.279310        0.767774   
+3           2D (Core)  5    0.387221       14038.929637        0.887316   
+4           2D (Core)  6    0.371604       13877.971238        0.836544   
+5           2D (Core)  7    0.360385       13855.915270        0.855286   
+6           2D (Core)  8    0.363313       14545.695646        0.797209   
+7           2D (Core)  9    0.368455       15166.471560        0.770890   
+8   3D (Demographics)  2    0.244308        4991.638181        1.655769   
+9   3D (Demographics)  3    0.234588        5075.351691        1.332584   
+10  3D (Demographics)  4    0.262843        5508.749369        1.188841   
+11  3D (Demographics)  5    0.263947        5567.457551        1.123698   
+12  3D (Demographics)  6    0.292887        6147.800082        0.957339   
+13  3D (Demographics)  7    0.285641        6197.168347        0.981570   
+14  3D (Demographics)  8    0.283923        6454.759967        0.974613   
+15  3D (Demographics)  9    0.291107        6147.694464        0.983384   
+
+         Inertia  
+0   18906.711486  
+1   11997.211508  
+2    7549.160180  
+3    6382.191328  
+4    5381.910517  
+5    4628.377820  
+6    3888.338070  
+7    3331.929283  
+8   33985.278067  
+9   27034.567366  
+10  21579.773454  
+11  18260.112427  
+12  14883.814173  
+13  13047.783608  
+14  11314.820740  
+15  10610.195853
+
+--- Code Cell 4 ---
+[Source Preview]:
+fig, axes = plt.subplots(3, 2, figsize=(16, 18))
+axes = axes.flatten()
+
+optimal_k_values = {}
+[Outputs]:
+Tập hợp gợi ý K tối ưu tự động:  {'2D (Core)': 4, '3D (Demographics)': 6, '3D (Ratio)': 4, '4D': 6, '5D': 4}
+
+--- Code Cell 5 ---
+[Source Preview]:
+target_spaces = ['2D (Core)', '3D (Ratio)', '5D']
+tuning_results = {}
+
+for space_name in target_spaces:
+[Outputs]:
+=== GRID TUNING CHO KHÔNG GIAN: 2D (Core) ===
+-> Kết quả tốt nhất: K=4, max_iter=100, init=random | Silhouette: 0.4117
+
+=== GRID TUNING CHO KHÔNG GIAN: 3D (Ratio) ===
+-> Kết quả tốt nhất: K=4, max_iter=100, init=random | Silhouette: 0.3992
+
+=== GRID TUNING CHO KHÔNG GIAN: 5D ===
+-> Kết quả tốt nhất: K=2, max_iter=100, init=random | Silhouette: 0.2634
+
+--- Code Cell 7 ---
+[Source Preview]:
+# Tính toán chỉ số cho các cấu hình trước tối ưu
+sil_2d_bef = silhouette_score(X_2d, km_2d_bef.labels_, sample_size=3000, random_state=42)
+ch_2d_bef = calinski_harabasz_score(X_2d, km_2d_bef.labels_)
+db_2d_bef = davies_bouldin_score(X_2d, km_2d_bef.labels_)
+[Outputs]:
+Mô hình                   Cấu hình Silhouette  \
+0        K-Means 2D (Trước tối ưu)  K=5, random, max_iter=100     0.3872   
+1          K-Means 2D (Sau tối ưu)  K=4, random, max_iter=100     0.4117   
+2  K-Means 3D Ratio (Trước tối ưu)  K=5, random, max_iter=100     0.3888   
+3    K-Means 3D Ratio (Sau tối ưu)  K=4, random, max_iter=100     0.3992   
+4        K-Means 5D (Trước tối ưu)  K=5, random, max_iter=100     0.2325   
+5          K-Means 5D (Sau tối ưu)  K=2, random, max_iter=100     0.2634   
+
+  Calinski-Harabasz Davies-Bouldin  
+0          14038.93         0.8873  
+1          15049.28         0.7678  
+2          13609.46         0.8044  
+3          12586.34         0.8072  
+4           5027.27         1.1839  
+5           5599.94         1.4104
+
+--- Code Cell 8 ---
+[Source Preview]:
+# Lấy mẫu ngẫu nhiên 1,000 khách hàng
+df_sample = df.sample(n=1000, random_state=42)
+X_sample = df_sample[['Annual Income_scaled', 'Spending Score_scaled']].values
+
+[Outputs]:
+Bắt đầu chạy từng bước K-Means (Step-by-step Demo):
+<__main__.KMeansScratch at 0x23a5e9090a0>
+
+--- Code Cell 9 ---
+[Source Preview]:
+# === LƯU TÂM CỤM VÀ MÔ HÌNH ===
+np.save('kmeans_centroids.npy', km_2d_aft.centroids)
+with open('kmeans_model.pkl', 'wb') as f:
+    pickle.dump(km_2d_aft, f)
+[Outputs]:
+Đã lưu mô hình K-Means 2D tối ưu phục vụ deploy thành công!
+
+
+=========================================
+FILE: lab4/eda/eda.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import kagglehub
+import shutil
+import os
+
+[Outputs]:
+c:\Users\Win 11\AppData\Local\Programs\Python\Python312\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+Path to dataset files: C:\Users\Win 11\.cache\kagglehub\datasets\shibumohapatra\house-price\versions\3
+Dữ liệu đã được lưu tại: c:\Users\Win 11\Documents\ML\ML_proj_26\lab4\data\raw
+
+--- Code Cell 2 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+[Outputs]:
+Libraries imported successfully.
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Read data
+data = pd.read_csv('../data/raw/1553768847-housing.csv')
+print(f"Kích thước dữ liệu: {data.shape[0]} dòng, {data.shape[1]} cột\n")
+print("Thông tin kiểu dữ liệu các cột:")
+[Outputs]:
+Kích thước dữ liệu: 20640 dòng, 10 cột
+
+Thông tin kiểu dữ liệu các cột:
+<class 'pandas.DataFrame'>
+RangeIndex: 20640 entries, 0 to 20639
+Data columns (total 10 columns):
+ #   Column              Non-Null Count  Dtype  
+---  ------              --------------  -----  
+ 0   longitude           20640 non-null  float64
+ 1   latitude            20640 non-null  float64
+ 2   housing_median_age  20640 non-null  int64  
+ 3   total_rooms         20640 non-null  int64  
+ 4   total_bedrooms      20433 non-null  float64
+ 5   population          20640 non-null  int64  
+ 6   households          20640 non-null  int64  
+ 7   median_income       20640 non-null  float64
+ 8   ocean_proximity     20640 non-null  str    
+ 9   median_house_value  20640 non-null  int64  
+dtypes: float64(4), int64(5), str(1)
+memory usage: 1.7 MB
+
+Xem trước 5 dòng đầu:
+
+--- Code Cell 4 ---
+[Source Preview]:
+print("Thống kê tổng hợp biến số:")
+display(data.describe())
+
+print("\nThống kê tổng hợp biến phân loại (ocean_proximity):")
+[Outputs]:
+Thống kê tổng hợp biến số:
+Thống kê tổng hợp biến phân loại (ocean_proximity):
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5784\797535771.py:5: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  display(data.describe(include=['O']))
+Tần suất các nhãn trong ocean_proximity:
+
+--- Code Cell 5 ---
+[Source Preview]:
+plt.figure(figsize=(16, 5))
+
+# 1. Plot Target Variable Distribution
+plt.subplot(1, 3, 1)
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5784\636733916.py:17: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(x='ocean_proximity', data=data, palette='Set2')
+
+--- Code Cell 6 ---
+[Source Preview]:
+# 1. Correlation Matrix Heatmap
+num_data = data.select_dtypes(include=[np.number])
+corr = num_data.corr()
+
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5784\236675990.py:30: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(x='ocean_proximity', y='median_house_value', data=data, palette='Set3')
+
+--- Code Cell 7 ---
+[Source Preview]:
+# 1. Check Missing Data
+missing = data.isnull().sum()
+missing_pct = (missing / len(data)) * 100
+df_missing = pd.DataFrame({'Cột': missing.index, 'Số ô thiếu': missing.values, 'Tỷ lệ (%)': missing_pct.values})
+[Outputs]:
+Thống kê khuyết thiếu dữ liệu:
+Số hàng dữ liệu trùng lặp hoàn toàn: 0
+
+Thống kê số lượng ngoại lệ (Outliers) dựa trên IQR (1.5x IQR):
+  Cột total_rooms     -> Số ngoại lệ:   1287 ( 6.24%)
+  Cột total_bedrooms  -> Số ngoại lệ:   1271 ( 6.22%)
+  Cột population      -> Số ngoại lệ:   1196 ( 5.79%)
+  Cột households      -> Số ngoại lệ:   1220 ( 5.91%)
+  Cột median_income   -> Số ngoại lệ:    681 ( 3.30%)
+
+--- Code Cell 8 ---
+[Source Preview]:
+# Visualize data completeness
+completeness = (1 - (data.isnull().sum() / len(data))) * 100
+
+plt.figure(figsize=(8, 4))
+[Outputs]:
+C:\Users\Win 11\AppData\Local\Temp\ipykernel_5784\2748994841.py:5: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.barplot(x=completeness.values, y=completeness.index, palette='Blues_r')
+--- Tóm tắt Đánh giá Chất lượng Dữ liệu ---
+1. Dữ liệu thiếu: Cột 'total_bedrooms' khuyết 207 dòng (khoảng 1%), các cột khác đầy đủ. Cần điền khuyết bằng Median.
+2. Dữ liệu trùng lặp: Không có hàng trùng lặp hoàn toàn.
+3. Phân phối và Outliers: Biến mục tiêu 'median_house_value' bị giới hạn chặn trên ở mức $500,001 (đỉnh giả ở cuối phân phối).
+   Các biến quy mô (total_rooms, total_bedrooms, population, households) bị phân phối lệch phải rất mạnh, cần log-transform.
+   Thu nhập 'median_income' là đặc trưng có tương quan cao nhất với giá nhà (r = 0.69).
+
+
+=========================================
+FILE: lab4/feature egineer/feature_engineering.ipynb
+=========================================
+
+--- Code Cell 2 ---
+[Source Preview]:
+data = pd.read_csv('../data/raw/1553768847-housing.csv')
+print(f"Raw dataset shape: {data.shape[0]} rows, {data.shape[1]} columns")
+
+X = data.drop(columns=['median_house_value'])
+[Outputs]:
+Raw dataset shape: 20640 rows, 10 columns
+X_train shape: (16512, 9), y_train shape: (16512, 1)
+X_test shape: (4128, 9), y_test shape: (4128, 1)
+
+--- Code Cell 3 ---
+[Source Preview]:
+# Impute missing total_bedrooms with Median of Train set
+imputer = SimpleImputer(strategy='median')
+X_train[['total_bedrooms']] = imputer.fit_transform(X_train[['total_bedrooms']])
+X_test[['total_bedrooms']] = imputer.transform(X_test[['total_bedrooms']])
+[Outputs]:
+Missing values after imputation:
+  X_train missing count: 0
+  X_test missing count: 0
+
+--- Code Cell 4 ---
+[Source Preview]:
+outlier_cols = ['total_rooms', 'total_bedrooms', 'population', 'households', 'median_income']
+
+# 1. IQR Capping
+print("Capping outliers based on training set IQR boundaries...")
+[Outputs]:
+Capping outliers based on training set IQR boundaries...
+Applying log1p transform to right-skewed numerical columns...
+Outliers handled successfully.
+
+--- Code Cell 5 ---
+[Source Preview]:
+ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+ohe.fit(X_train[['ocean_proximity']])
+
+ohe_cols = [f"ocean_proximity_{cat}" for cat in ohe.categories_[0]]
+[Outputs]:
+Encoded X_train shape: (16512, 18), Encoded X_test shape: (4128, 18)
+
+
+--- Code Cell 6 ---
+[Source Preview]:
+from sklearn.decomposition import PCA
+
+# 1. Tạo các đặc trưng gộp trung gian (chưa scale)
+coords_sum_train = X_train['latitude'] + X_train['longitude']
+[Outputs]:
+Scenarios created successfully (unscaled).
+
+--- Code Cell 7 ---
+[Source Preview]:
+scenarios_config = [
+    ("PA1", X_train_pa1, X_test_pa1, pa1_numeric),
+    ("PA2", X_train_pa2, X_test_pa2, pa2_numeric),
+    ("PA3_A", X_train_pa3a, X_test_pa3a, pa3a_numeric),
+[Outputs]:
+All scenarios scaled successfully.
+
+--- Code Cell 8 ---
+[Source Preview]:
+%matplotlib inline
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+[Outputs]:
+============================================================
+ SCENARIO: PA1 (Base Features - Original)
+============================================================
+Cột đặc trưng (13): ['longitude', 'latitude', 'housing_median_age', 'total_rooms_log', 'total_bedrooms_log', 'population_log', 'households_log', 'median_income_log', 'ocean_proximity_<1H OCEAN', 'ocean_proximity_INLAND', 'ocean_proximity_ISLAND', 'ocean_proximity_NEAR BAY', 'ocean_proximity_NEAR OCEAN']
+============================================================
+ SCENARIO: PA2 (Drop Bedrooms & Households + Coords Sum)
+============================================================
+Cột đặc trưng (10): ['housing_median_age', 'total_rooms_log', 'population_log', 'median_income_log', 'ocean_proximity_<1H OCEAN', 'ocean_proximity_INLAND', 'ocean_proximity_ISLAND', 'ocean_proximity_NEAR BAY', 'ocean_proximity_NEAR OCEAN', 'coords_sum']
+============================================================
+ SCENARIO: PA3_A (Mean Aggregation + Coords Sum)
+============================================================
+Cột đặc trưng (10): ['housing_median_age', 'median_income_log', 'ocean_proximity_<1H OCEAN', 'ocean_proximity_INLAND', 'ocean_proximity_ISLAND', 'ocean_proximity_NEAR BAY', 'ocean_proximity_NEAR OCEAN', 'rooms_bedrooms_combined', 'pop_households_combined', 'coords_sum']
+============================================================
+ SCENARIO: PA3_B (PCA 1D Aggregation + Coords Sum)
+============================================================
+Cột đặc trưng (9): ['housing_median_age', 'median_income_log', 'ocean_proximity_<1H OCEAN', 'ocean_proximity_INLAND', 'ocean_proximity_ISLAND', 'ocean_proximity_NEAR BAY', 'ocean_proximity_NEAR OCEAN', 'size_pc1', 'coords_sum']
+
+--- Code Cell 9 ---
+[Source Preview]:
+import os
+
+processed_dir = "../data/ready_train"
+
+[Outputs]:
+Tất cả 4 kịch bản dữ liệu đã được lưu trữ thành công vào ../data/ready_train!
+
+
+=========================================
+FILE: lab4/modeling/modeling_kaggle.ipynb
+=========================================
+
+--- Code Cell 1 ---
+[Source Preview]:
+import pandas as pd
+import numpy as np
+import time
+import warnings
+[Outputs]:
+=== GPU Check ===
+PyTorch Version: 2.10.0+cu128
+CUDA Available: True
+GPU Device Name: Tesla T4
+Current Device ID: 0
+=================
+
+--- Code Cell 2 ---
+[Source Preview]:
+X_train_df = pd.read_csv('/kaggle/input/datasets/lacthai/ready-train/PA1/X_train.csv')
+X_test_df  = pd.read_csv('/kaggle/input/datasets/lacthai/ready-train/PA1/X_test.csv')
+y_train_df = pd.read_csv('/kaggle/input/datasets/lacthai/ready-train/PA1/y_train.csv')
+y_test_df  = pd.read_csv('/kaggle/input/datasets/lacthai/ready-train/PA1/y_test.csv')
+[Outputs]:
+X_train: (16512, 13) | X_test: (4128, 13)
+y mean=207195  std=115619
+
+--- Code Cell 4 ---
+[Source Preview]:
+def metrics(y_true, y_pred):
+    mae  = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mape = np.mean(np.abs((y_true - y_pred) / np.maximum(y_true, 1e-5))) * 100
+[Outputs]:
+Helper functions ready.
+
+--- Code Cell 5 ---
+[Source Preview]:
+# ── Tune Linear Regression with Optuna ─────────────────────
+print('Tuning Linear Regression using Optuna...')
+def lr_objective(trial):
+    lr = trial.suggest_float('lr', 1e-4, 1e-1, log=True)
+[Outputs]:
+[I 2026-07-07 08:59:27,280] A new study created in memory with name: no-name-0aeefd51-ed18-4b60-9423-f095177a4d9f
+Tuning Linear Regression using Optuna...
+[I 2026-07-07 08:59:27,437] Trial 0 finished with value: 0.45289539440791393 and parameters: {'lr': 0.0016486281815789976, 'epochs': 535}. Best is trial 0 with value: 0.45289539440791393.
+[I 2026-07-07 08:59:27,579] Trial 1 finished with value: 0.5928770904305517 and parameters: {'lr': 0.034291511072169524, 'epochs': 515}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:27,763] Trial 2 finished with value: 0.14171498716014153 and parameters: {'lr': 0.0002197190666848509, 'epochs': 666}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:27,999] Trial 3 finished with value: 0.20992454907355385 and parameters: {'lr': 0.00027927838364894155, 'epochs': 852}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:28,163] Trial 4 finished with value: 0.08002836663410196 and parameters: {'lr': 0.00012767519289247538, 'epochs': 601}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:28,402] Trial 5 finished with value: 0.15603079020655874 and parameters: {'lr': 0.00018176095236828002, 'epochs': 903}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:28,594] Trial 6 finished with value: 0.5768142742913949 and parameters: {'lr': 0.0068429541093579915, 'epochs': 792}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:28,813] Trial 7 finished with value: 0.5711935573571936 and parameters: {'lr': 0.004691864049506836, 'epochs': 918}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:28,937] Trial 8 finished with value: 0.19855791726287864 and parameters: {'lr': 0.0004192558229976272, 'epochs': 528}. Best is trial 1 with value: 0.5928770904305517.
+[I 2026-07-07 08:59:29,142] Trial 9 finished with value: 0.5359021906854968 and parameters: {'lr': 0.0021090174420919775, 'epochs': 839}. Best is trial 1 with value: 0.5928770904305517.
+Best LR params: {'lr': 0.034291511072169524, 'epochs': 515} | Best R2: 0.5929
+ params_lr  params_epochs    value
+  0.034292            515 0.592877
+  0.006843            792 0.576814
+  0.004692            918 0.571194
+  0.002109            839 0.535902
+  0.001649            535 0.452895
+
+--- Code Cell 6 ---
+[Source Preview]:
+# ── Tune Random Forest Scratch with Optuna ──────────────────
+print('Tuning Random Forest Scratch using Optuna...')
+def rf_objective(trial):
+    n_estimators = trial.suggest_int('n_estimators', 5, 20)
+[Outputs]:
+[I 2026-07-07 08:59:29,155] A new study created in memory with name: no-name-31fe28cc-e835-4d28-9eb5-1518cf23e9ce
+Tuning Random Forest Scratch using Optuna...
+[I 2026-07-07 08:59:31,464] Trial 0 finished with value: 0.6665772042253556 and parameters: {'n_estimators': 10, 'max_depth': 7, 'min_samples_split': 18}. Best is trial 0 with value: 0.6665772042253556.
+[I 2026-07-07 08:59:37,896] Trial 1 finished with value: 0.7416655892697096 and parameters: {'n_estimators': 7, 'max_depth': 11, 'min_samples_split': 11}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 08:59:43,707] Trial 2 finished with value: 0.7129850897641941 and parameters: {'n_estimators': 9, 'max_depth': 10, 'min_samples_split': 9}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 08:59:49,879] Trial 3 finished with value: 0.7075442582742992 and parameters: {'n_estimators': 12, 'max_depth': 9, 'min_samples_split': 7}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:02,527] Trial 4 finished with value: 0.7328119098767915 and parameters: {'n_estimators': 20, 'max_depth': 10, 'min_samples_split': 17}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:08,783] Trial 5 finished with value: 0.7265292722797145 and parameters: {'n_estimators': 10, 'max_depth': 10, 'min_samples_split': 19}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:13,463] Trial 6 finished with value: 0.6942097880635865 and parameters: {'n_estimators': 13, 'max_depth': 8, 'min_samples_split': 7}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:18,314] Trial 7 finished with value: 0.6781756890128662 and parameters: {'n_estimators': 20, 'max_depth': 7, 'min_samples_split': 6}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:19,749] Trial 8 finished with value: 0.6293575036975656 and parameters: {'n_estimators': 9, 'max_depth': 6, 'min_samples_split': 13}. Best is trial 1 with value: 0.7416655892697096.
+[I 2026-07-07 09:00:42,619] Trial 9 finished with value: 0.7614899924351055 and parameters: {'n_estimators': 20, 'max_depth': 12, 'min_samples_split': 12}. Best is trial 9 with value: 0.7614899924351055.
+Best RF params: {'n_estimators': 20, 'max_depth': 12, 'min_samples_split': 12, 'max_features': 'sqrt', 'random_state': 42} | Best R2: 0.7615
+ params_n_estimators  params_max_depth  params_min_samples_split    value
+                  20                12                        12 0.761490
+                   7                11                        11 0.741666
+                  20                10                        17 0.732812
+                  10                10                        19 0.726529
+                   9                10                         9 0.712985
+
+--- Code Cell 7 ---
+[Source Preview]:
+# ── Tune PyTorch MLP with Optuna ──────────────────────────
+print('Tuning PyTorch MLP using Optuna...')
+def mlp_objective(trial):
+    lr = trial.suggest_float('lr', 1e-4, 1e-2, log=True)
+[Outputs]:
+[I 2026-07-07 09:00:42,634] A new study created in memory with name: no-name-8d308721-6287-4f55-8dfd-6642b6bf139f
+Tuning PyTorch MLP using Optuna...
+Epoch [1/20], Train Loss: 0.3441, Validation Loss: 0.3156, Validation R²: 0.68
+Epoch [2/20], Train Loss: 0.3264, Validation Loss: 0.2967, Validation R²: 0.70
+Epoch [3/20], Train Loss: 0.3127, Validation Loss: 0.3005, Validation R²: 0.69
+Epoch [4/20], Train Loss: 0.3234, Validation Loss: 0.2935, Validation R²: 0.70
+Epoch [5/20], Train Loss: 0.3247, Validation Loss: 0.2986, Validation R²: 0.70
+Epoch [6/20], Train Loss: 0.3253, Validation Loss: 0.3083, Validation R²: 0.69
+Epoch [7/20], Train Loss: 0.3162, Validation Loss: 0.2986, Validation R²: 0.70
+Epoch [8/20], Train Loss: 0.3103, Validation Loss: 0.2812, Validation R²: 0.71
+Epoch [9/20], Train Loss: 0.3169, Validation Loss: 0.3130, Validation R²: 0.68
+Epoch [10/20], Train Loss: 0.3135, Validation Loss: 0.2916, Validation R²: 0.70
+Epoch [11/20], Train Loss: 0.3202, Validation Loss: 0.2959, Validation R²: 0.70
+Epoch [12/20], Train Loss: 0.3108, Validation Loss: 0.2919, Validation R²: 0.70
+Epoch [13/20], Train Loss: 0.3176, Validation Loss: 0.2927, Validation R²: 0.70
+Epoch [14/20], Train Loss: 0.3154, Validation Loss: 0.2907, Validation R²: 0.70
+Epoch [15/20], Train Loss: 0.3041, Validation Loss: 0.2910, Validation R²: 0.70
+Epoch [16/20], Train Loss: 0.2979, Validation Loss: 0.2789, Validation R²: 0.72
+Epoch [17/20], Train Loss: 0.3009, Validation Loss: 0.2859, Validation R²: 0.71
+Epoch [18/20], Train Loss: 0.3001, Validation Loss: 0.2943, Validation R²: 0.70
+Epoch [19/20], Train Loss: 0.3000, Validation Loss: 0.2849, Validation R²: 0.71
+[I 2026-07-07 09:00:56,303] Trial 0 finished with value: 0.7046452164649963 and parameters: {'lr': 0.00940830163248518, 'batch': 64, 'wd': 0.0017181725222766692}. Best is trial 0 with value: 0.7046452164649963.
+Epoch [20/20], Train Loss: 0.2980, Validation Loss: 0.2895, Validation R²: 0.70
+Epoch [1/20], Train Loss: 0.3481, Validation Loss: 0.2876, Validation R²: 0.71
+Epoch [2/20], Train Loss: 0.2935, Validation Loss: 0.2844, Validation R²: 0.71
+Epoch [3/20], Train Loss: 0.2805, Validation Loss: 0.2663, Validation R²: 0.73
+Epoch [4/20], Train Loss: 0.2707, Validation Loss: 0.2543, Validation R²: 0.74
+Epoch [5/20], Train Loss: 0.2649, Validation Loss: 0.2503, Validation R²: 0.74
+Epoch [6/20], Train Loss: 0.2544, Validation Loss: 0.2433, Validation R²: 0.75
+Epoch [7/20], Train Loss: 0.2589, Validation Loss: 0.2443, Validation R²: 0.75
+Epoch [8/20], Train Loss: 0.2500, Validation Loss: 0.2335, Validation R²: 0.76
+Epoch [9/20], Train Loss: 0.2462, Validation Loss: 0.2361, Validation R²: 0.76
+Epoch [10/20], Train Loss: 0.2478, Validation Loss: 0.2299, Validation R²: 0.77
+Epoch [11/20], Train Loss: 0.2442, Validation Loss: 0.2307, Validation R²: 0.76
+Epoch [12/20], Train Loss: 0.2406, Validation Loss: 0.2299, Validation R²: 0.77
+Epoch [13/20], Train Loss: 0.2365, Validation Loss: 0.2248, Validation R²: 0.77
+Epoch [14/20], Train Loss: 0.2394, Validation Loss: 0.2215, Validation R²: 0.77
+Epoch [15/20], Train Loss: 0.2309, Validation Loss: 0.2289, Validation R²: 0.77
+Epoch [16/20], Train Loss: 0.2304, Validation Loss: 0.2193, Validation R²: 0.78
+Epoch [17/20], Train Loss: 0.2314, Validation Loss: 0.2280, Validation R²: 0.77
+Epoch [18/20], Train Loss: 0.2333, Validation Loss: 0.2207, Validation R²: 0.77
+Epoch [19/20], Train Loss: 0.2299, Validation Loss: 0.2267, Validation R²: 0.77
+[I 2026-07-07 09:01:03,859] Trial 1 finished with value: 0.7785088419914246 and parameters: {'lr': 0.0023496218961933514, 'batch': 128, 'wd': 0.00015082133274140863}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2341, Validation Loss: 0.2171, Validation R²: 0.78
+Epoch [1/20], Train Loss: 0.5547, Validation Loss: 0.3429, Validation R²: 0.65
+Epoch [2/20], Train Loss: 0.3638, Validation Loss: 0.3086, Validation R²: 0.69
+Epoch [3/20], Train Loss: 0.3424, Validation Loss: 0.2937, Validation R²: 0.70
+Epoch [4/20], Train Loss: 0.3273, Validation Loss: 0.2830, Validation R²: 0.71
+Epoch [5/20], Train Loss: 0.3213, Validation Loss: 0.2781, Validation R²: 0.72
+Epoch [6/20], Train Loss: 0.3155, Validation Loss: 0.2724, Validation R²: 0.72
+Epoch [7/20], Train Loss: 0.3160, Validation Loss: 0.2693, Validation R²: 0.73
+Epoch [8/20], Train Loss: 0.3057, Validation Loss: 0.2695, Validation R²: 0.73
+Epoch [9/20], Train Loss: 0.3003, Validation Loss: 0.2677, Validation R²: 0.73
+Epoch [10/20], Train Loss: 0.3000, Validation Loss: 0.2669, Validation R²: 0.73
+Epoch [11/20], Train Loss: 0.3004, Validation Loss: 0.2615, Validation R²: 0.73
+Epoch [12/20], Train Loss: 0.2928, Validation Loss: 0.2601, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2924, Validation Loss: 0.2603, Validation R²: 0.73
+Epoch [14/20], Train Loss: 0.2870, Validation Loss: 0.2579, Validation R²: 0.74
+Epoch [15/20], Train Loss: 0.2870, Validation Loss: 0.2570, Validation R²: 0.74
+Epoch [16/20], Train Loss: 0.2857, Validation Loss: 0.2574, Validation R²: 0.74
+Epoch [17/20], Train Loss: 0.2858, Validation Loss: 0.2571, Validation R²: 0.74
+Epoch [18/20], Train Loss: 0.2833, Validation Loss: 0.2545, Validation R²: 0.74
+Epoch [19/20], Train Loss: 0.2793, Validation Loss: 0.2542, Validation R²: 0.74
+[I 2026-07-07 09:01:17,346] Trial 2 finished with value: 0.7421342730522156 and parameters: {'lr': 0.00011942841905582088, 'batch': 64, 'wd': 0.00361056725612054}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2788, Validation Loss: 0.2528, Validation R²: 0.74
+Epoch [1/20], Train Loss: 0.3353, Validation Loss: 0.2838, Validation R²: 0.71
+Epoch [2/20], Train Loss: 0.2990, Validation Loss: 0.2631, Validation R²: 0.73
+Epoch [3/20], Train Loss: 0.2847, Validation Loss: 0.2599, Validation R²: 0.73
+Epoch [4/20], Train Loss: 0.2800, Validation Loss: 0.2544, Validation R²: 0.74
+Epoch [5/20], Train Loss: 0.2742, Validation Loss: 0.2595, Validation R²: 0.74
+Epoch [6/20], Train Loss: 0.2701, Validation Loss: 0.2590, Validation R²: 0.74
+Epoch [7/20], Train Loss: 0.2712, Validation Loss: 0.2490, Validation R²: 0.75
+Epoch [8/20], Train Loss: 0.2664, Validation Loss: 0.2439, Validation R²: 0.75
+Epoch [9/20], Train Loss: 0.2629, Validation Loss: 0.2483, Validation R²: 0.75
+Epoch [10/20], Train Loss: 0.2585, Validation Loss: 0.2336, Validation R²: 0.76
+Epoch [11/20], Train Loss: 0.2558, Validation Loss: 0.2349, Validation R²: 0.76
+Epoch [12/20], Train Loss: 0.2559, Validation Loss: 0.2351, Validation R²: 0.76
+Epoch [13/20], Train Loss: 0.2562, Validation Loss: 0.2359, Validation R²: 0.76
+Epoch [14/20], Train Loss: 0.2576, Validation Loss: 0.2367, Validation R²: 0.76
+Epoch [15/20], Train Loss: 0.2515, Validation Loss: 0.2342, Validation R²: 0.76
+Epoch [16/20], Train Loss: 0.2490, Validation Loss: 0.2397, Validation R²: 0.76
+Epoch [17/20], Train Loss: 0.2405, Validation Loss: 0.2248, Validation R²: 0.77
+Epoch [18/20], Train Loss: 0.2389, Validation Loss: 0.2201, Validation R²: 0.78
+Epoch [19/20], Train Loss: 0.2339, Validation Loss: 0.2256, Validation R²: 0.77
+[I 2026-07-07 09:01:30,676] Trial 3 finished with value: 0.7764637470245361 and parameters: {'lr': 0.004480452080983571, 'batch': 64, 'wd': 3.242806641724804e-05}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2301, Validation Loss: 0.2191, Validation R²: 0.78
+Epoch [1/20], Train Loss: 0.3412, Validation Loss: 0.2996, Validation R²: 0.69
+Epoch [2/20], Train Loss: 0.3092, Validation Loss: 0.2844, Validation R²: 0.71
+Epoch [3/20], Train Loss: 0.3070, Validation Loss: 0.2942, Validation R²: 0.70
+Epoch [4/20], Train Loss: 0.3049, Validation Loss: 0.2877, Validation R²: 0.71
+Epoch [5/20], Train Loss: 0.3041, Validation Loss: 0.2804, Validation R²: 0.71
+Epoch [6/20], Train Loss: 0.3027, Validation Loss: 0.2878, Validation R²: 0.71
+Epoch [7/20], Train Loss: 0.2973, Validation Loss: 0.2852, Validation R²: 0.71
+Epoch [8/20], Train Loss: 0.2997, Validation Loss: 0.2959, Validation R²: 0.70
+Epoch [9/20], Train Loss: 0.2983, Validation Loss: 0.2810, Validation R²: 0.71
+Epoch [10/20], Train Loss: 0.2961, Validation Loss: 0.2879, Validation R²: 0.71
+Epoch [11/20], Train Loss: 0.3013, Validation Loss: 0.2860, Validation R²: 0.71
+Epoch [12/20], Train Loss: 0.2889, Validation Loss: 0.2639, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2872, Validation Loss: 0.2725, Validation R²: 0.72
+Epoch [14/20], Train Loss: 0.2784, Validation Loss: 0.2642, Validation R²: 0.73
+Epoch [15/20], Train Loss: 0.2871, Validation Loss: 0.2690, Validation R²: 0.73
+Epoch [16/20], Train Loss: 0.2849, Validation Loss: 0.2647, Validation R²: 0.73
+Epoch [17/20], Train Loss: 0.2839, Validation Loss: 0.2714, Validation R²: 0.72
+Epoch [18/20], Train Loss: 0.2870, Validation Loss: 0.2723, Validation R²: 0.72
+Epoch [19/20], Train Loss: 0.2750, Validation Loss: 0.2617, Validation R²: 0.73
+[I 2026-07-07 09:01:44,064] Trial 4 finished with value: 0.7361503839492798 and parameters: {'lr': 0.005391274764006535, 'batch': 64, 'wd': 0.0018420609901294526}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2736, Validation Loss: 0.2586, Validation R²: 0.74
+Epoch [1/20], Train Loss: 0.5105, Validation Loss: 0.3286, Validation R²: 0.66
+Epoch [2/20], Train Loss: 0.3378, Validation Loss: 0.3033, Validation R²: 0.69
+Epoch [3/20], Train Loss: 0.3205, Validation Loss: 0.2947, Validation R²: 0.70
+Epoch [4/20], Train Loss: 0.3123, Validation Loss: 0.2859, Validation R²: 0.71
+Epoch [5/20], Train Loss: 0.3032, Validation Loss: 0.2777, Validation R²: 0.72
+Epoch [6/20], Train Loss: 0.2995, Validation Loss: 0.2788, Validation R²: 0.72
+Epoch [7/20], Train Loss: 0.2918, Validation Loss: 0.2723, Validation R²: 0.72
+Epoch [8/20], Train Loss: 0.2898, Validation Loss: 0.2702, Validation R²: 0.72
+Epoch [9/20], Train Loss: 0.2868, Validation Loss: 0.2669, Validation R²: 0.73
+Epoch [10/20], Train Loss: 0.2823, Validation Loss: 0.2630, Validation R²: 0.73
+Epoch [11/20], Train Loss: 0.2785, Validation Loss: 0.2622, Validation R²: 0.73
+Epoch [12/20], Train Loss: 0.2810, Validation Loss: 0.2600, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2760, Validation Loss: 0.2555, Validation R²: 0.74
+Epoch [14/20], Train Loss: 0.2715, Validation Loss: 0.2535, Validation R²: 0.74
+Epoch [15/20], Train Loss: 0.2717, Validation Loss: 0.2523, Validation R²: 0.74
+Epoch [16/20], Train Loss: 0.2702, Validation Loss: 0.2524, Validation R²: 0.74
+Epoch [17/20], Train Loss: 0.2704, Validation Loss: 0.2531, Validation R²: 0.74
+Epoch [18/20], Train Loss: 0.2661, Validation Loss: 0.2492, Validation R²: 0.75
+Epoch [19/20], Train Loss: 0.2642, Validation Loss: 0.2465, Validation R²: 0.75
+[I 2026-07-07 09:01:57,517] Trial 5 finished with value: 0.7483130693435669 and parameters: {'lr': 0.0002072574232226354, 'batch': 64, 'wd': 2.437865229509412e-05}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2605, Validation Loss: 0.2467, Validation R²: 0.75
+Epoch [1/20], Train Loss: 0.4865, Validation Loss: 0.3075, Validation R²: 0.69
+Epoch [2/20], Train Loss: 0.3229, Validation Loss: 0.2845, Validation R²: 0.71
+Epoch [3/20], Train Loss: 0.3125, Validation Loss: 0.2781, Validation R²: 0.72
+Epoch [4/20], Train Loss: 0.2993, Validation Loss: 0.2709, Validation R²: 0.72
+Epoch [5/20], Train Loss: 0.2977, Validation Loss: 0.2689, Validation R²: 0.73
+Epoch [6/20], Train Loss: 0.2886, Validation Loss: 0.2649, Validation R²: 0.73
+Epoch [7/20], Train Loss: 0.2844, Validation Loss: 0.2636, Validation R²: 0.73
+Epoch [8/20], Train Loss: 0.2835, Validation Loss: 0.2611, Validation R²: 0.73
+Epoch [9/20], Train Loss: 0.2772, Validation Loss: 0.2581, Validation R²: 0.74
+Epoch [10/20], Train Loss: 0.2749, Validation Loss: 0.2579, Validation R²: 0.74
+Epoch [11/20], Train Loss: 0.2752, Validation Loss: 0.2556, Validation R²: 0.74
+Epoch [12/20], Train Loss: 0.2715, Validation Loss: 0.2551, Validation R²: 0.74
+Epoch [13/20], Train Loss: 0.2694, Validation Loss: 0.2517, Validation R²: 0.74
+Epoch [14/20], Train Loss: 0.2661, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [15/20], Train Loss: 0.2609, Validation Loss: 0.2495, Validation R²: 0.75
+Epoch [16/20], Train Loss: 0.2632, Validation Loss: 0.2459, Validation R²: 0.75
+Epoch [17/20], Train Loss: 0.2612, Validation Loss: 0.2460, Validation R²: 0.75
+Epoch [18/20], Train Loss: 0.2582, Validation Loss: 0.2421, Validation R²: 0.75
+Epoch [19/20], Train Loss: 0.2556, Validation Loss: 0.2430, Validation R²: 0.75
+[I 2026-07-07 09:02:04,979] Trial 6 finished with value: 0.7543498873710632 and parameters: {'lr': 0.000263594733844179, 'batch': 128, 'wd': 0.00018788079096844913}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2560, Validation Loss: 0.2408, Validation R²: 0.75
+Epoch [1/20], Train Loss: 0.5908, Validation Loss: 0.3609, Validation R²: 0.63
+Epoch [2/20], Train Loss: 0.3556, Validation Loss: 0.3079, Validation R²: 0.69
+Epoch [3/20], Train Loss: 0.3289, Validation Loss: 0.2907, Validation R²: 0.70
+Epoch [4/20], Train Loss: 0.3152, Validation Loss: 0.2810, Validation R²: 0.71
+Epoch [5/20], Train Loss: 0.3042, Validation Loss: 0.2769, Validation R²: 0.72
+Epoch [6/20], Train Loss: 0.3045, Validation Loss: 0.2751, Validation R²: 0.72
+Epoch [7/20], Train Loss: 0.2992, Validation Loss: 0.2728, Validation R²: 0.72
+Epoch [8/20], Train Loss: 0.2926, Validation Loss: 0.2697, Validation R²: 0.72
+Epoch [9/20], Train Loss: 0.2875, Validation Loss: 0.2681, Validation R²: 0.73
+Epoch [10/20], Train Loss: 0.2905, Validation Loss: 0.2652, Validation R²: 0.73
+Epoch [11/20], Train Loss: 0.2863, Validation Loss: 0.2622, Validation R²: 0.73
+Epoch [12/20], Train Loss: 0.2797, Validation Loss: 0.2618, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2782, Validation Loss: 0.2594, Validation R²: 0.74
+Epoch [14/20], Train Loss: 0.2728, Validation Loss: 0.2594, Validation R²: 0.74
+Epoch [15/20], Train Loss: 0.2755, Validation Loss: 0.2591, Validation R²: 0.74
+Epoch [16/20], Train Loss: 0.2749, Validation Loss: 0.2567, Validation R²: 0.74
+Epoch [17/20], Train Loss: 0.2709, Validation Loss: 0.2556, Validation R²: 0.74
+Epoch [18/20], Train Loss: 0.2663, Validation Loss: 0.2530, Validation R²: 0.74
+Epoch [19/20], Train Loss: 0.2684, Validation Loss: 0.2525, Validation R²: 0.74
+[I 2026-07-07 09:02:12,506] Trial 7 finished with value: 0.7432465553283691 and parameters: {'lr': 0.00021416874654999192, 'batch': 128, 'wd': 0.0007150630088065748}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2686, Validation Loss: 0.2517, Validation R²: 0.74
+Epoch [1/20], Train Loss: 0.6284, Validation Loss: 0.3699, Validation R²: 0.62
+Epoch [2/20], Train Loss: 0.3672, Validation Loss: 0.3198, Validation R²: 0.67
+Epoch [3/20], Train Loss: 0.3358, Validation Loss: 0.2996, Validation R²: 0.69
+Epoch [4/20], Train Loss: 0.3247, Validation Loss: 0.2908, Validation R²: 0.70
+Epoch [5/20], Train Loss: 0.3130, Validation Loss: 0.2837, Validation R²: 0.71
+Epoch [6/20], Train Loss: 0.3042, Validation Loss: 0.2785, Validation R²: 0.72
+Epoch [7/20], Train Loss: 0.3029, Validation Loss: 0.2737, Validation R²: 0.72
+Epoch [8/20], Train Loss: 0.2935, Validation Loss: 0.2707, Validation R²: 0.72
+Epoch [9/20], Train Loss: 0.2884, Validation Loss: 0.2661, Validation R²: 0.73
+Epoch [10/20], Train Loss: 0.2861, Validation Loss: 0.2646, Validation R²: 0.73
+Epoch [11/20], Train Loss: 0.2798, Validation Loss: 0.2623, Validation R²: 0.73
+Epoch [12/20], Train Loss: 0.2780, Validation Loss: 0.2600, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2731, Validation Loss: 0.2585, Validation R²: 0.74
+Epoch [14/20], Train Loss: 0.2712, Validation Loss: 0.2574, Validation R²: 0.74
+Epoch [15/20], Train Loss: 0.2706, Validation Loss: 0.2556, Validation R²: 0.74
+Epoch [16/20], Train Loss: 0.2650, Validation Loss: 0.2535, Validation R²: 0.74
+Epoch [17/20], Train Loss: 0.2668, Validation Loss: 0.2528, Validation R²: 0.74
+Epoch [18/20], Train Loss: 0.2649, Validation Loss: 0.2554, Validation R²: 0.74
+Epoch [19/20], Train Loss: 0.2636, Validation Loss: 0.2537, Validation R²: 0.74
+[I 2026-07-07 09:02:20,122] Trial 8 finished with value: 0.7455344200134277 and parameters: {'lr': 0.00019540643133839463, 'batch': 128, 'wd': 0.009384678360079566}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2600, Validation Loss: 0.2494, Validation R²: 0.75
+Epoch [1/20], Train Loss: 0.8452, Validation Loss: 0.5046, Validation R²: 0.49
+Epoch [2/20], Train Loss: 0.4122, Validation Loss: 0.3264, Validation R²: 0.67
+Epoch [3/20], Train Loss: 0.3351, Validation Loss: 0.2983, Validation R²: 0.70
+Epoch [4/20], Train Loss: 0.3176, Validation Loss: 0.2884, Validation R²: 0.71
+Epoch [5/20], Train Loss: 0.3097, Validation Loss: 0.2831, Validation R²: 0.71
+Epoch [6/20], Train Loss: 0.3034, Validation Loss: 0.2803, Validation R²: 0.71
+Epoch [7/20], Train Loss: 0.2940, Validation Loss: 0.2775, Validation R²: 0.72
+Epoch [8/20], Train Loss: 0.2970, Validation Loss: 0.2765, Validation R²: 0.72
+Epoch [9/20], Train Loss: 0.2925, Validation Loss: 0.2757, Validation R²: 0.72
+Epoch [10/20], Train Loss: 0.2908, Validation Loss: 0.2716, Validation R²: 0.72
+Epoch [11/20], Train Loss: 0.2882, Validation Loss: 0.2712, Validation R²: 0.72
+Epoch [12/20], Train Loss: 0.2852, Validation Loss: 0.2673, Validation R²: 0.73
+Epoch [13/20], Train Loss: 0.2805, Validation Loss: 0.2660, Validation R²: 0.73
+Epoch [14/20], Train Loss: 0.2810, Validation Loss: 0.2631, Validation R²: 0.73
+Epoch [15/20], Train Loss: 0.2794, Validation Loss: 0.2622, Validation R²: 0.73
+Epoch [16/20], Train Loss: 0.2751, Validation Loss: 0.2632, Validation R²: 0.73
+Epoch [17/20], Train Loss: 0.2735, Validation Loss: 0.2600, Validation R²: 0.73
+Epoch [18/20], Train Loss: 0.2730, Validation Loss: 0.2589, Validation R²: 0.74
+Epoch [19/20], Train Loss: 0.2704, Validation Loss: 0.2575, Validation R²: 0.74
+[I 2026-07-07 09:02:27,687] Trial 9 finished with value: 0.7389458417892456 and parameters: {'lr': 0.00016707677360501295, 'batch': 128, 'wd': 0.00011176134897945731}. Best is trial 1 with value: 0.7785088419914246.
+Epoch [20/20], Train Loss: 0.2700, Validation Loss: 0.2559, Validation R²: 0.74
+  Best MLP params (for final training): {'lr': 0.0023496218961933514, 'batch': 128, 'wd': 0.00015082133274140863, 'epochs': 100} | Best R2: 0.7785
+ params_lr  params_batch  params_wd    value
+  0.002350           128   0.000151 0.778509
+  0.004480            64   0.000032 0.776464
+  0.000264           128   0.000188 0.754350
+  0.000207            64   0.000024 0.748313
+  0.000195           128   0.009385 0.745534
+
+--- Code Cell 8 ---
+[Source Preview]:
+results   = []
+loss_store = {}  # key: (scenario, model_name) -> (train_hist, val_hist or None)
+pred_store = {}  # key: (scenario, model_name) -> y_pred (original USD scale)
+
+[Outputs]:
+=== Scenario: PA1 (Base Features) ===
+  LR  R2=0.5929  MAPE=32.16%
+  RF  R2=0.7615  MAPE=22.32%
+Epoch [1/100], Train Loss: 0.3617, Validation Loss: 0.2887, Validation R²: 0.71
+Epoch [2/100], Train Loss: 0.2928, Validation Loss: 0.2838, Validation R²: 0.71
+Epoch [3/100], Train Loss: 0.2789, Validation Loss: 0.2808, Validation R²: 0.71
+Epoch [4/100], Train Loss: 0.2691, Validation Loss: 0.2597, Validation R²: 0.74
+Epoch [5/100], Train Loss: 0.2625, Validation Loss: 0.2522, Validation R²: 0.74
+Epoch [6/100], Train Loss: 0.2578, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [7/100], Train Loss: 0.2564, Validation Loss: 0.2422, Validation R²: 0.75
+Epoch [8/100], Train Loss: 0.2496, Validation Loss: 0.2439, Validation R²: 0.75
+Epoch [9/100], Train Loss: 0.2515, Validation Loss: 0.2349, Validation R²: 0.76
+Epoch [10/100], Train Loss: 0.2447, Validation Loss: 0.2314, Validation R²: 0.76
+Epoch [11/100], Train Loss: 0.2433, Validation Loss: 0.2347, Validation R²: 0.76
+Epoch [12/100], Train Loss: 0.2364, Validation Loss: 0.2342, Validation R²: 0.76
+Epoch [13/100], Train Loss: 0.2370, Validation Loss: 0.2328, Validation R²: 0.76
+Epoch [14/100], Train Loss: 0.2370, Validation Loss: 0.2271, Validation R²: 0.77
+Epoch [15/100], Train Loss: 0.2371, Validation Loss: 0.2249, Validation R²: 0.77
+Epoch [16/100], Train Loss: 0.2344, Validation Loss: 0.2233, Validation R²: 0.77
+Epoch [17/100], Train Loss: 0.2299, Validation Loss: 0.2208, Validation R²: 0.77
+Epoch [18/100], Train Loss: 0.2289, Validation Loss: 0.2333, Validation R²: 0.76
+Epoch [19/100], Train Loss: 0.2343, Validation Loss: 0.2186, Validation R²: 0.78
+Epoch [20/100], Train Loss: 0.2288, Validation Loss: 0.2182, Validation R²: 0.78
+Epoch [21/100], Train Loss: 0.2288, Validation Loss: 0.2157, Validation R²: 0.78
+Epoch [22/100], Train Loss: 0.2256, Validation Loss: 0.2162, Validation R²: 0.78
+Epoch [23/100], Train Loss: 0.2243, Validation Loss: 0.2133, Validation R²: 0.78
+Epoch [24/100], Train Loss: 0.2243, Validation Loss: 0.2180, Validation R²: 0.78
+Epoch [25/100], Train Loss: 0.2288, Validation Loss: 0.2177, Validation R²: 0.78
+Epoch [26/100], Train Loss: 0.2198, Validation Loss: 0.2100, Validation R²: 0.79
+Epoch [27/100], Train Loss: 0.2178, Validation Loss: 0.2119, Validation R²: 0.78
+Epoch [28/100], Train Loss: 0.2202, Validation Loss: 0.2197, Validation R²: 0.78
+Epoch [29/100], Train Loss: 0.2214, Validation Loss: 0.2117, Validation R²: 0.78
+Epoch [30/100], Train Loss: 0.2180, Validation Loss: 0.2066, Validation R²: 0.79
+Epoch [31/100], Train Loss: 0.2199, Validation Loss: 0.2113, Validation R²: 0.78
+Epoch [32/100], Train Loss: 0.2171, Validation Loss: 0.2215, Validation R²: 0.77
+Epoch [33/100], Train Loss: 0.2178, Validation Loss: 0.2126, Validation R²: 0.78
+Epoch [34/100], Train Loss: 0.2176, Validation Loss: 0.2156, Validation R²: 0.78
+Epoch [35/100], Train Loss: 0.2181, Validation Loss: 0.2124, Validation R²: 0.78
+Epoch [36/100], Train Loss: 0.2142, Validation Loss: 0.2079, Validation R²: 0.79
+Epoch [37/100], Train Loss: 0.2074, Validation Loss: 0.2057, Validation R²: 0.79
+Epoch [38/100], Train Loss: 0.2081, Validation Loss: 0.2020, Validation R²: 0.79
+Epoch [39/100], Train Loss: 0.2071, Validation Loss: 0.2015, Validation R²: 0.79
+Epoch [40/100], Train Loss: 0.2055, Validation Loss: 0.2037, Validation R²: 0.79
+Epoch [41/100], Train Loss: 0.2089, Validation Loss: 0.2016, Validation R²: 0.79
+Epoch [42/100], Train Loss: 0.2060, Validation Loss: 0.2020, Validation R²: 0.79
+Epoch [43/100], Train Loss: 0.2030, Validation Loss: 0.2043, Validation R²: 0.79
+Epoch [44/100], Train Loss: 0.2028, Validation Loss: 0.2032, Validation R²: 0.79
+Epoch [45/100], Train Loss: 0.2028, Validation Loss: 0.2047, Validation R²: 0.79
+Epoch [46/100], Train Loss: 0.1969, Validation Loss: 0.2006, Validation R²: 0.80
+Epoch [47/100], Train Loss: 0.1977, Validation Loss: 0.1989, Validation R²: 0.80
+Epoch [48/100], Train Loss: 0.1973, Validation Loss: 0.1991, Validation R²: 0.80
+Epoch [49/100], Train Loss: 0.1957, Validation Loss: 0.1992, Validation R²: 0.80
+Epoch [50/100], Train Loss: 0.1961, Validation Loss: 0.1996, Validation R²: 0.80
+Epoch [51/100], Train Loss: 0.1949, Validation Loss: 0.1992, Validation R²: 0.80
+Epoch [52/100], Train Loss: 0.1940, Validation Loss: 0.2003, Validation R²: 0.80
+Epoch [53/100], Train Loss: 0.1957, Validation Loss: 0.2006, Validation R²: 0.80
+Epoch [54/100], Train Loss: 0.1894, Validation Loss: 0.1987, Validation R²: 0.80
+Epoch [55/100], Train Loss: 0.1924, Validation Loss: 0.1987, Validation R²: 0.80
+Epoch [56/100], Train Loss: 0.1889, Validation Loss: 0.1980, Validation R²: 0.80
+Epoch [57/100], Train Loss: 0.1892, Validation Loss: 0.2000, Validation R²: 0.80
+Epoch [58/100], Train Loss: 0.1955, Validation Loss: 0.1989, Validation R²: 0.80
+Epoch [59/100], Train Loss: 0.1884, Validation Loss: 0.1989, Validation R²: 0.80
+Epoch [60/100], Train Loss: 0.1886, Validation Loss: 0.2008, Validation R²: 0.80
+Epoch [61/100], Train Loss: 0.1903, Validation Loss: 0.1983, Validation R²: 0.80
+Epoch [62/100], Train Loss: 0.1893, Validation Loss: 0.2002, Validation R²: 0.80
+Epoch [63/100], Train Loss: 0.1887, Validation Loss: 0.1992, Validation R²: 0.80
+Epoch [64/100], Train Loss: 0.1887, Validation Loss: 0.1977, Validation R²: 0.80
+Epoch [65/100], Train Loss: 0.1884, Validation Loss: 0.1980, Validation R²: 0.80
+Epoch [66/100], Train Loss: 0.1860, Validation Loss: 0.1969, Validation R²: 0.80
+Epoch [67/100], Train Loss: 0.1904, Validation Loss: 0.1978, Validation R²: 0.80
+Epoch [68/100], Train Loss: 0.1873, Validation Loss: 0.1975, Validation R²: 0.80
+Epoch [69/100], Train Loss: 0.1904, Validation Loss: 0.1978, Validation R²: 0.80
+Epoch [70/100], Train Loss: 0.1884, Validation Loss: 0.1987, Validation R²: 0.80
+Epoch [71/100], Train Loss: 0.1843, Validation Loss: 0.1967, Validation R²: 0.80
+Epoch [72/100], Train Loss: 0.1878, Validation Loss: 0.1977, Validation R²: 0.80
+Epoch [73/100], Train Loss: 0.1881, Validation Loss: 0.1976, Validation R²: 0.80
+Epoch [74/100], Train Loss: 0.1874, Validation Loss: 0.1972, Validation R²: 0.80
+Epoch [75/100], Train Loss: 0.1858, Validation Loss: 0.1964, Validation R²: 0.80
+Epoch [76/100], Train Loss: 0.1886, Validation Loss: 0.1988, Validation R²: 0.80
+Epoch [77/100], Train Loss: 0.1864, Validation Loss: 0.1977, Validation R²: 0.80
+Epoch [78/100], Train Loss: 0.1832, Validation Loss: 0.1972, Validation R²: 0.80
+Epoch [79/100], Train Loss: 0.1881, Validation Loss: 0.1988, Validation R²: 0.80
+Epoch [80/100], Train Loss: 0.1893, Validation Loss: 0.1973, Validation R²: 0.80
+Epoch [81/100], Train Loss: 0.1861, Validation Loss: 0.1985, Validation R²: 0.80
+Epoch [82/100], Train Loss: 0.1873, Validation Loss: 0.1993, Validation R²: 0.80
+Epoch [83/100], Train Loss: 0.1854, Validation Loss: 0.1965, Validation R²: 0.80
+Epoch [84/100], Train Loss: 0.1845, Validation Loss: 0.1970, Validation R²: 0.80
+Epoch [85/100], Train Loss: 0.1859, Validation Loss: 0.1971, Validation R²: 0.80
+Epoch [86/100], Train Loss: 0.1860, Validation Loss: 0.1967, Validation R²: 0.80
+Epoch [87/100], Train Loss: 0.1856, Validation Loss: 0.1976, Validation R²: 0.80
+Epoch [88/100], Train Loss: 0.1852, Validation Loss: 0.1979, Validation R²: 0.80
+Epoch [89/100], Train Loss: 0.1831, Validation Loss: 0.1968, Validation R²: 0.80
+Epoch [90/100], Train Loss: 0.1833, Validation Loss: 0.1965, Validation R²: 0.80
+Epoch [91/100], Train Loss: 0.1822, Validation Loss: 0.1974, Validation R²: 0.80
+Epoch [92/100], Train Loss: 0.1849, Validation Loss: 0.1974, Validation R²: 0.80
+Epoch [93/100], Train Loss: 0.1830, Validation Loss: 0.1970, Validation R²: 0.80
+Epoch [94/100], Train Loss: 0.1854, Validation Loss: 0.1964, Validation R²: 0.80
+Epoch [95/100], Train Loss: 0.1835, Validation Loss: 0.1973, Validation R²: 0.80
+Epoch [96/100], Train Loss: 0.1823, Validation Loss: 0.1969, Validation R²: 0.80
+Epoch [97/100], Train Loss: 0.1823, Validation Loss: 0.1979, Validation R²: 0.80
+Epoch [98/100], Train Loss: 0.1864, Validation Loss: 0.1968, Validation R²: 0.80
+Epoch [99/100], Train Loss: 0.1860, Validation Loss: 0.1961, Validation R²: 0.80
+Epoch [100/100], Train Loss: 0.1824, Validation Loss: 0.1960, Validation R²: 0.80
+  MLP R2=0.8000  MAPE=18.87%
+
+=== Scenario: PA2 (Reduced) ===
+  LR  R2=0.5845  MAPE=32.68%
+  RF  R2=0.7082  MAPE=25.01%
+Epoch [1/100], Train Loss: 0.3727, Validation Loss: 0.3224, Validation R²: 0.67
+Epoch [2/100], Train Loss: 0.3170, Validation Loss: 0.2928, Validation R²: 0.70
+Epoch [3/100], Train Loss: 0.3058, Validation Loss: 0.3023, Validation R²: 0.69
+Epoch [4/100], Train Loss: 0.2938, Validation Loss: 0.2704, Validation R²: 0.72
+Epoch [5/100], Train Loss: 0.2868, Validation Loss: 0.2663, Validation R²: 0.73
+Epoch [6/100], Train Loss: 0.2860, Validation Loss: 0.2730, Validation R²: 0.72
+Epoch [7/100], Train Loss: 0.2846, Validation Loss: 0.2631, Validation R²: 0.73
+Epoch [8/100], Train Loss: 0.2781, Validation Loss: 0.2649, Validation R²: 0.73
+Epoch [9/100], Train Loss: 0.2729, Validation Loss: 0.2663, Validation R²: 0.73
+Epoch [10/100], Train Loss: 0.2704, Validation Loss: 0.2594, Validation R²: 0.74
+Epoch [11/100], Train Loss: 0.2733, Validation Loss: 0.2585, Validation R²: 0.74
+Epoch [12/100], Train Loss: 0.2687, Validation Loss: 0.2638, Validation R²: 0.73
+Epoch [13/100], Train Loss: 0.2723, Validation Loss: 0.2609, Validation R²: 0.73
+Epoch [14/100], Train Loss: 0.2677, Validation Loss: 0.2568, Validation R²: 0.74
+Epoch [15/100], Train Loss: 0.2708, Validation Loss: 0.2571, Validation R²: 0.74
+Epoch [16/100], Train Loss: 0.2679, Validation Loss: 0.2581, Validation R²: 0.74
+Epoch [17/100], Train Loss: 0.2630, Validation Loss: 0.2533, Validation R²: 0.74
+Epoch [18/100], Train Loss: 0.2637, Validation Loss: 0.2647, Validation R²: 0.73
+Epoch [19/100], Train Loss: 0.2681, Validation Loss: 0.2531, Validation R²: 0.74
+Epoch [20/100], Train Loss: 0.2619, Validation Loss: 0.2521, Validation R²: 0.74
+Epoch [21/100], Train Loss: 0.2635, Validation Loss: 0.2567, Validation R²: 0.74
+Epoch [22/100], Train Loss: 0.2628, Validation Loss: 0.2523, Validation R²: 0.74
+Epoch [23/100], Train Loss: 0.2598, Validation Loss: 0.2586, Validation R²: 0.74
+Epoch [24/100], Train Loss: 0.2561, Validation Loss: 0.2523, Validation R²: 0.74
+Epoch [25/100], Train Loss: 0.2578, Validation Loss: 0.2570, Validation R²: 0.74
+Epoch [26/100], Train Loss: 0.2595, Validation Loss: 0.2545, Validation R²: 0.74
+Epoch [27/100], Train Loss: 0.2565, Validation Loss: 0.2485, Validation R²: 0.75
+Epoch [28/100], Train Loss: 0.2521, Validation Loss: 0.2530, Validation R²: 0.74
+Epoch [29/100], Train Loss: 0.2504, Validation Loss: 0.2463, Validation R²: 0.75
+Epoch [30/100], Train Loss: 0.2494, Validation Loss: 0.2496, Validation R²: 0.75
+Epoch [31/100], Train Loss: 0.2525, Validation Loss: 0.2472, Validation R²: 0.75
+Epoch [32/100], Train Loss: 0.2505, Validation Loss: 0.2465, Validation R²: 0.75
+Epoch [33/100], Train Loss: 0.2473, Validation Loss: 0.2461, Validation R²: 0.75
+Epoch [34/100], Train Loss: 0.2476, Validation Loss: 0.2474, Validation R²: 0.75
+Epoch [35/100], Train Loss: 0.2484, Validation Loss: 0.2467, Validation R²: 0.75
+Epoch [36/100], Train Loss: 0.2475, Validation Loss: 0.2451, Validation R²: 0.75
+Epoch [37/100], Train Loss: 0.2494, Validation Loss: 0.2490, Validation R²: 0.75
+Epoch [38/100], Train Loss: 0.2455, Validation Loss: 0.2463, Validation R²: 0.75
+Epoch [39/100], Train Loss: 0.2452, Validation Loss: 0.2471, Validation R²: 0.75
+Epoch [40/100], Train Loss: 0.2458, Validation Loss: 0.2456, Validation R²: 0.75
+Epoch [41/100], Train Loss: 0.2504, Validation Loss: 0.2447, Validation R²: 0.75
+Epoch [42/100], Train Loss: 0.2428, Validation Loss: 0.2485, Validation R²: 0.75
+Epoch [43/100], Train Loss: 0.2482, Validation Loss: 0.2470, Validation R²: 0.75
+Epoch [44/100], Train Loss: 0.2448, Validation Loss: 0.2457, Validation R²: 0.75
+Epoch [45/100], Train Loss: 0.2455, Validation Loss: 0.2468, Validation R²: 0.75
+Epoch [46/100], Train Loss: 0.2455, Validation Loss: 0.2508, Validation R²: 0.74
+Epoch [47/100], Train Loss: 0.2443, Validation Loss: 0.2447, Validation R²: 0.75
+Epoch [48/100], Train Loss: 0.2397, Validation Loss: 0.2426, Validation R²: 0.75
+Epoch [49/100], Train Loss: 0.2375, Validation Loss: 0.2434, Validation R²: 0.75
+Epoch [50/100], Train Loss: 0.2386, Validation Loss: 0.2440, Validation R²: 0.75
+Epoch [51/100], Train Loss: 0.2400, Validation Loss: 0.2434, Validation R²: 0.75
+Epoch [52/100], Train Loss: 0.2388, Validation Loss: 0.2447, Validation R²: 0.75
+Epoch [53/100], Train Loss: 0.2422, Validation Loss: 0.2432, Validation R²: 0.75
+Epoch [54/100], Train Loss: 0.2365, Validation Loss: 0.2421, Validation R²: 0.75
+Epoch [55/100], Train Loss: 0.2392, Validation Loss: 0.2418, Validation R²: 0.75
+Epoch [56/100], Train Loss: 0.2381, Validation Loss: 0.2433, Validation R²: 0.75
+Epoch [57/100], Train Loss: 0.2349, Validation Loss: 0.2420, Validation R²: 0.75
+Epoch [58/100], Train Loss: 0.2353, Validation Loss: 0.2436, Validation R²: 0.75
+Epoch [59/100], Train Loss: 0.2366, Validation Loss: 0.2437, Validation R²: 0.75
+Epoch [60/100], Train Loss: 0.2344, Validation Loss: 0.2406, Validation R²: 0.75
+Epoch [61/100], Train Loss: 0.2329, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [62/100], Train Loss: 0.2359, Validation Loss: 0.2420, Validation R²: 0.75
+Epoch [63/100], Train Loss: 0.2340, Validation Loss: 0.2404, Validation R²: 0.75
+Epoch [64/100], Train Loss: 0.2343, Validation Loss: 0.2421, Validation R²: 0.75
+Epoch [65/100], Train Loss: 0.2376, Validation Loss: 0.2413, Validation R²: 0.75
+Epoch [66/100], Train Loss: 0.2346, Validation Loss: 0.2422, Validation R²: 0.75
+Epoch [67/100], Train Loss: 0.2343, Validation Loss: 0.2423, Validation R²: 0.75
+Epoch [68/100], Train Loss: 0.2327, Validation Loss: 0.2400, Validation R²: 0.76
+Epoch [69/100], Train Loss: 0.2330, Validation Loss: 0.2408, Validation R²: 0.75
+Epoch [70/100], Train Loss: 0.2362, Validation Loss: 0.2411, Validation R²: 0.75
+Epoch [71/100], Train Loss: 0.2337, Validation Loss: 0.2423, Validation R²: 0.75
+Epoch [72/100], Train Loss: 0.2331, Validation Loss: 0.2409, Validation R²: 0.75
+Epoch [73/100], Train Loss: 0.2297, Validation Loss: 0.2406, Validation R²: 0.75
+Epoch [74/100], Train Loss: 0.2312, Validation Loss: 0.2408, Validation R²: 0.75
+Epoch [75/100], Train Loss: 0.2319, Validation Loss: 0.2416, Validation R²: 0.75
+Epoch [76/100], Train Loss: 0.2278, Validation Loss: 0.2413, Validation R²: 0.75
+Epoch [77/100], Train Loss: 0.2277, Validation Loss: 0.2401, Validation R²: 0.76
+Epoch [78/100], Train Loss: 0.2282, Validation Loss: 0.2416, Validation R²: 0.75
+Epoch [79/100], Train Loss: 0.2293, Validation Loss: 0.2414, Validation R²: 0.75
+Epoch [80/100], Train Loss: 0.2287, Validation Loss: 0.2406, Validation R²: 0.75
+Epoch [81/100], Train Loss: 0.2257, Validation Loss: 0.2404, Validation R²: 0.75
+Epoch [82/100], Train Loss: 0.2259, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [83/100], Train Loss: 0.2278, Validation Loss: 0.2404, Validation R²: 0.75
+Epoch [84/100], Train Loss: 0.2266, Validation Loss: 0.2400, Validation R²: 0.76
+Epoch [85/100], Train Loss: 0.2296, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [86/100], Train Loss: 0.2288, Validation Loss: 0.2395, Validation R²: 0.76
+Epoch [87/100], Train Loss: 0.2273, Validation Loss: 0.2398, Validation R²: 0.76
+Epoch [88/100], Train Loss: 0.2305, Validation Loss: 0.2404, Validation R²: 0.75
+Epoch [89/100], Train Loss: 0.2283, Validation Loss: 0.2398, Validation R²: 0.76
+Epoch [90/100], Train Loss: 0.2276, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [91/100], Train Loss: 0.2289, Validation Loss: 0.2399, Validation R²: 0.76
+Epoch [92/100], Train Loss: 0.2293, Validation Loss: 0.2403, Validation R²: 0.75
+Epoch [93/100], Train Loss: 0.2273, Validation Loss: 0.2403, Validation R²: 0.75
+Epoch [94/100], Train Loss: 0.2249, Validation Loss: 0.2395, Validation R²: 0.76
+Epoch [95/100], Train Loss: 0.2277, Validation Loss: 0.2397, Validation R²: 0.76
+Epoch [96/100], Train Loss: 0.2258, Validation Loss: 0.2395, Validation R²: 0.76
+Epoch [97/100], Train Loss: 0.2278, Validation Loss: 0.2397, Validation R²: 0.76
+Epoch [98/100], Train Loss: 0.2293, Validation Loss: 0.2397, Validation R²: 0.76
+Epoch [99/100], Train Loss: 0.2282, Validation Loss: 0.2406, Validation R²: 0.75
+Epoch [100/100], Train Loss: 0.2300, Validation Loss: 0.2404, Validation R²: 0.75
+  MLP R2=0.7547  MAPE=22.12%
+
+=== Scenario: PA3_A (Mean Aggregation) ===
+  LR  R2=0.5740  MAPE=32.81%
+  RF  R2=0.7016  MAPE=25.67%
+Epoch [1/100], Train Loss: 0.3702, Validation Loss: 0.3149, Validation R²: 0.68
+Epoch [2/100], Train Loss: 0.3192, Validation Loss: 0.2964, Validation R²: 0.70
+Epoch [3/100], Train Loss: 0.3017, Validation Loss: 0.2989, Validation R²: 0.70
+Epoch [4/100], Train Loss: 0.2949, Validation Loss: 0.2860, Validation R²: 0.71
+Epoch [5/100], Train Loss: 0.2866, Validation Loss: 0.2928, Validation R²: 0.70
+Epoch [6/100], Train Loss: 0.2901, Validation Loss: 0.2797, Validation R²: 0.71
+Epoch [7/100], Train Loss: 0.2844, Validation Loss: 0.2803, Validation R²: 0.71
+Epoch [8/100], Train Loss: 0.2801, Validation Loss: 0.2831, Validation R²: 0.71
+Epoch [9/100], Train Loss: 0.2767, Validation Loss: 0.2802, Validation R²: 0.71
+Epoch [10/100], Train Loss: 0.2770, Validation Loss: 0.2720, Validation R²: 0.72
+Epoch [11/100], Train Loss: 0.2763, Validation Loss: 0.2674, Validation R²: 0.73
+Epoch [12/100], Train Loss: 0.2714, Validation Loss: 0.2707, Validation R²: 0.72
+Epoch [13/100], Train Loss: 0.2689, Validation Loss: 0.2682, Validation R²: 0.73
+Epoch [14/100], Train Loss: 0.2730, Validation Loss: 0.2738, Validation R²: 0.72
+Epoch [15/100], Train Loss: 0.2705, Validation Loss: 0.2663, Validation R²: 0.73
+Epoch [16/100], Train Loss: 0.2695, Validation Loss: 0.2696, Validation R²: 0.72
+Epoch [17/100], Train Loss: 0.2666, Validation Loss: 0.2687, Validation R²: 0.73
+Epoch [18/100], Train Loss: 0.2662, Validation Loss: 0.2641, Validation R²: 0.73
+Epoch [19/100], Train Loss: 0.2668, Validation Loss: 0.2661, Validation R²: 0.73
+Epoch [20/100], Train Loss: 0.2638, Validation Loss: 0.2674, Validation R²: 0.73
+Epoch [21/100], Train Loss: 0.2613, Validation Loss: 0.2630, Validation R²: 0.73
+Epoch [22/100], Train Loss: 0.2618, Validation Loss: 0.2647, Validation R²: 0.73
+Epoch [23/100], Train Loss: 0.2621, Validation Loss: 0.2639, Validation R²: 0.73
+Epoch [24/100], Train Loss: 0.2625, Validation Loss: 0.2630, Validation R²: 0.73
+Epoch [25/100], Train Loss: 0.2626, Validation Loss: 0.2683, Validation R²: 0.73
+Epoch [26/100], Train Loss: 0.2602, Validation Loss: 0.2706, Validation R²: 0.72
+Epoch [27/100], Train Loss: 0.2631, Validation Loss: 0.2618, Validation R²: 0.73
+Epoch [28/100], Train Loss: 0.2603, Validation Loss: 0.2651, Validation R²: 0.73
+Epoch [29/100], Train Loss: 0.2633, Validation Loss: 0.2705, Validation R²: 0.72
+Epoch [30/100], Train Loss: 0.2572, Validation Loss: 0.2631, Validation R²: 0.73
+Epoch [31/100], Train Loss: 0.2624, Validation Loss: 0.2594, Validation R²: 0.74
+Epoch [32/100], Train Loss: 0.2602, Validation Loss: 0.2565, Validation R²: 0.74
+Epoch [33/100], Train Loss: 0.2616, Validation Loss: 0.2600, Validation R²: 0.73
+Epoch [34/100], Train Loss: 0.2617, Validation Loss: 0.2578, Validation R²: 0.74
+Epoch [35/100], Train Loss: 0.2581, Validation Loss: 0.2632, Validation R²: 0.73
+Epoch [36/100], Train Loss: 0.2606, Validation Loss: 0.2723, Validation R²: 0.72
+Epoch [37/100], Train Loss: 0.2546, Validation Loss: 0.2566, Validation R²: 0.74
+Epoch [38/100], Train Loss: 0.2574, Validation Loss: 0.2585, Validation R²: 0.74
+Epoch [39/100], Train Loss: 0.2541, Validation Loss: 0.2559, Validation R²: 0.74
+Epoch [40/100], Train Loss: 0.2500, Validation Loss: 0.2584, Validation R²: 0.74
+Epoch [41/100], Train Loss: 0.2454, Validation Loss: 0.2583, Validation R²: 0.74
+Epoch [42/100], Train Loss: 0.2443, Validation Loss: 0.2614, Validation R²: 0.73
+Epoch [43/100], Train Loss: 0.2466, Validation Loss: 0.2551, Validation R²: 0.74
+Epoch [44/100], Train Loss: 0.2489, Validation Loss: 0.2566, Validation R²: 0.74
+Epoch [45/100], Train Loss: 0.2480, Validation Loss: 0.2550, Validation R²: 0.74
+Epoch [46/100], Train Loss: 0.2492, Validation Loss: 0.2539, Validation R²: 0.74
+Epoch [47/100], Train Loss: 0.2459, Validation Loss: 0.2536, Validation R²: 0.74
+Epoch [48/100], Train Loss: 0.2498, Validation Loss: 0.2534, Validation R²: 0.74
+Epoch [49/100], Train Loss: 0.2429, Validation Loss: 0.2536, Validation R²: 0.74
+Epoch [50/100], Train Loss: 0.2446, Validation Loss: 0.2542, Validation R²: 0.74
+Epoch [51/100], Train Loss: 0.2453, Validation Loss: 0.2531, Validation R²: 0.74
+Epoch [52/100], Train Loss: 0.2431, Validation Loss: 0.2531, Validation R²: 0.74
+Epoch [53/100], Train Loss: 0.2456, Validation Loss: 0.2544, Validation R²: 0.74
+Epoch [54/100], Train Loss: 0.2437, Validation Loss: 0.2534, Validation R²: 0.74
+Epoch [55/100], Train Loss: 0.2422, Validation Loss: 0.2545, Validation R²: 0.74
+Epoch [56/100], Train Loss: 0.2443, Validation Loss: 0.2521, Validation R²: 0.74
+Epoch [57/100], Train Loss: 0.2436, Validation Loss: 0.2581, Validation R²: 0.74
+Epoch [58/100], Train Loss: 0.2425, Validation Loss: 0.2555, Validation R²: 0.74
+Epoch [59/100], Train Loss: 0.2425, Validation Loss: 0.2539, Validation R²: 0.74
+Epoch [60/100], Train Loss: 0.2438, Validation Loss: 0.2543, Validation R²: 0.74
+Epoch [61/100], Train Loss: 0.2461, Validation Loss: 0.2531, Validation R²: 0.74
+Epoch [62/100], Train Loss: 0.2445, Validation Loss: 0.2554, Validation R²: 0.74
+Epoch [63/100], Train Loss: 0.2394, Validation Loss: 0.2514, Validation R²: 0.74
+Epoch [64/100], Train Loss: 0.2359, Validation Loss: 0.2507, Validation R²: 0.74
+Epoch [65/100], Train Loss: 0.2379, Validation Loss: 0.2497, Validation R²: 0.75
+Epoch [66/100], Train Loss: 0.2369, Validation Loss: 0.2513, Validation R²: 0.74
+Epoch [67/100], Train Loss: 0.2388, Validation Loss: 0.2517, Validation R²: 0.74
+Epoch [68/100], Train Loss: 0.2392, Validation Loss: 0.2523, Validation R²: 0.74
+Epoch [69/100], Train Loss: 0.2392, Validation Loss: 0.2499, Validation R²: 0.75
+Epoch [70/100], Train Loss: 0.2344, Validation Loss: 0.2515, Validation R²: 0.74
+Epoch [71/100], Train Loss: 0.2379, Validation Loss: 0.2514, Validation R²: 0.74
+Epoch [72/100], Train Loss: 0.2328, Validation Loss: 0.2501, Validation R²: 0.74
+Epoch [73/100], Train Loss: 0.2323, Validation Loss: 0.2508, Validation R²: 0.74
+Epoch [74/100], Train Loss: 0.2360, Validation Loss: 0.2498, Validation R²: 0.75
+Epoch [75/100], Train Loss: 0.2319, Validation Loss: 0.2510, Validation R²: 0.74
+Epoch [76/100], Train Loss: 0.2315, Validation Loss: 0.2493, Validation R²: 0.75
+Epoch [77/100], Train Loss: 0.2331, Validation Loss: 0.2501, Validation R²: 0.74
+Epoch [78/100], Train Loss: 0.2341, Validation Loss: 0.2499, Validation R²: 0.75
+Epoch [79/100], Train Loss: 0.2327, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [80/100], Train Loss: 0.2334, Validation Loss: 0.2499, Validation R²: 0.75
+Epoch [81/100], Train Loss: 0.2335, Validation Loss: 0.2492, Validation R²: 0.75
+Epoch [82/100], Train Loss: 0.2319, Validation Loss: 0.2510, Validation R²: 0.74
+Epoch [83/100], Train Loss: 0.2341, Validation Loss: 0.2511, Validation R²: 0.74
+Epoch [84/100], Train Loss: 0.2337, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [85/100], Train Loss: 0.2287, Validation Loss: 0.2504, Validation R²: 0.74
+Epoch [86/100], Train Loss: 0.2317, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [87/100], Train Loss: 0.2307, Validation Loss: 0.2498, Validation R²: 0.75
+Epoch [88/100], Train Loss: 0.2273, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [89/100], Train Loss: 0.2295, Validation Loss: 0.2496, Validation R²: 0.75
+Epoch [90/100], Train Loss: 0.2346, Validation Loss: 0.2492, Validation R²: 0.75
+Epoch [91/100], Train Loss: 0.2301, Validation Loss: 0.2485, Validation R²: 0.75
+Epoch [92/100], Train Loss: 0.2321, Validation Loss: 0.2496, Validation R²: 0.75
+Epoch [93/100], Train Loss: 0.2296, Validation Loss: 0.2491, Validation R²: 0.75
+Epoch [94/100], Train Loss: 0.2276, Validation Loss: 0.2505, Validation R²: 0.74
+Epoch [95/100], Train Loss: 0.2324, Validation Loss: 0.2495, Validation R²: 0.75
+Epoch [96/100], Train Loss: 0.2296, Validation Loss: 0.2507, Validation R²: 0.74
+Epoch [97/100], Train Loss: 0.2297, Validation Loss: 0.2500, Validation R²: 0.74
+Epoch [98/100], Train Loss: 0.2306, Validation Loss: 0.2509, Validation R²: 0.74
+Epoch [99/100], Train Loss: 0.2275, Validation Loss: 0.2493, Validation R²: 0.75
+Epoch [100/100], Train Loss: 0.2319, Validation Loss: 0.2494, Validation R²: 0.75
+  MLP R2=0.7456  MAPE=22.68%
+
+=== Scenario: PA3_B (PCA Aggregation) ===
+  LR  R2=0.5526  MAPE=33.39%
+  RF  R2=0.6859  MAPE=26.36%
+Epoch [1/100], Train Loss: 0.3832, Validation Loss: 0.3434, Validation R²: 0.65
+Epoch [2/100], Train Loss: 0.3536, Validation Loss: 0.3344, Validation R²: 0.66
+Epoch [3/100], Train Loss: 0.3425, Validation Loss: 0.3249, Validation R²: 0.67
+Epoch [4/100], Train Loss: 0.3430, Validation Loss: 0.3266, Validation R²: 0.67
+Epoch [5/100], Train Loss: 0.3343, Validation Loss: 0.3295, Validation R²: 0.66
+Epoch [6/100], Train Loss: 0.3319, Validation Loss: 0.3202, Validation R²: 0.67
+Epoch [7/100], Train Loss: 0.3278, Validation Loss: 0.3189, Validation R²: 0.67
+Epoch [8/100], Train Loss: 0.3290, Validation Loss: 0.3224, Validation R²: 0.67
+Epoch [9/100], Train Loss: 0.3237, Validation Loss: 0.3173, Validation R²: 0.68
+Epoch [10/100], Train Loss: 0.3274, Validation Loss: 0.3192, Validation R²: 0.67
+Epoch [11/100], Train Loss: 0.3233, Validation Loss: 0.3184, Validation R²: 0.68
+Epoch [12/100], Train Loss: 0.3234, Validation Loss: 0.3168, Validation R²: 0.68
+Epoch [13/100], Train Loss: 0.3207, Validation Loss: 0.3207, Validation R²: 0.67
+Epoch [14/100], Train Loss: 0.3207, Validation Loss: 0.3173, Validation R²: 0.68
+Epoch [15/100], Train Loss: 0.3201, Validation Loss: 0.3173, Validation R²: 0.68
+Epoch [16/100], Train Loss: 0.3231, Validation Loss: 0.3151, Validation R²: 0.68
+Epoch [17/100], Train Loss: 0.3191, Validation Loss: 0.3085, Validation R²: 0.69
+Epoch [18/100], Train Loss: 0.3188, Validation Loss: 0.3101, Validation R²: 0.68
+Epoch [19/100], Train Loss: 0.3227, Validation Loss: 0.3149, Validation R²: 0.68
+Epoch [20/100], Train Loss: 0.3211, Validation Loss: 0.3120, Validation R²: 0.68
+Epoch [21/100], Train Loss: 0.3168, Validation Loss: 0.3121, Validation R²: 0.68
+Epoch [22/100], Train Loss: 0.3129, Validation Loss: 0.3113, Validation R²: 0.68
+Epoch [23/100], Train Loss: 0.3193, Validation Loss: 0.3130, Validation R²: 0.68
+Epoch [24/100], Train Loss: 0.3105, Validation Loss: 0.3091, Validation R²: 0.68
+Epoch [25/100], Train Loss: 0.3071, Validation Loss: 0.3074, Validation R²: 0.69
+Epoch [26/100], Train Loss: 0.3123, Validation Loss: 0.3078, Validation R²: 0.69
+Epoch [27/100], Train Loss: 0.3102, Validation Loss: 0.3084, Validation R²: 0.69
+Epoch [28/100], Train Loss: 0.3077, Validation Loss: 0.3121, Validation R²: 0.68
+Epoch [29/100], Train Loss: 0.3085, Validation Loss: 0.3078, Validation R²: 0.69
+Epoch [30/100], Train Loss: 0.3079, Validation Loss: 0.3042, Validation R²: 0.69
+Epoch [31/100], Train Loss: 0.3091, Validation Loss: 0.3053, Validation R²: 0.69
+Epoch [32/100], Train Loss: 0.3056, Validation Loss: 0.3073, Validation R²: 0.69
+Epoch [33/100], Train Loss: 0.3091, Validation Loss: 0.3073, Validation R²: 0.69
+Epoch [34/100], Train Loss: 0.3076, Validation Loss: 0.3063, Validation R²: 0.69
+Epoch [35/100], Train Loss: 0.3075, Validation Loss: 0.3051, Validation R²: 0.69
+Epoch [36/100], Train Loss: 0.3087, Validation Loss: 0.3062, Validation R²: 0.69
+Epoch [37/100], Train Loss: 0.3035, Validation Loss: 0.3054, Validation R²: 0.69
+Epoch [38/100], Train Loss: 0.3015, Validation Loss: 0.3050, Validation R²: 0.69
+Epoch [39/100], Train Loss: 0.3012, Validation Loss: 0.3037, Validation R²: 0.69
+Epoch [40/100], Train Loss: 0.3031, Validation Loss: 0.3039, Validation R²: 0.69
+Epoch [41/100], Train Loss: 0.3018, Validation Loss: 0.3039, Validation R²: 0.69
+Epoch [42/100], Train Loss: 0.3041, Validation Loss: 0.3040, Validation R²: 0.69
+Epoch [43/100], Train Loss: 0.3027, Validation Loss: 0.3030, Validation R²: 0.69
+Epoch [44/100], Train Loss: 0.3028, Validation Loss: 0.3029, Validation R²: 0.69
+Epoch [45/100], Train Loss: 0.3018, Validation Loss: 0.3047, Validation R²: 0.69
+Epoch [46/100], Train Loss: 0.3011, Validation Loss: 0.3048, Validation R²: 0.69
+Epoch [47/100], Train Loss: 0.3003, Validation Loss: 0.3024, Validation R²: 0.69
+Epoch [48/100], Train Loss: 0.3011, Validation Loss: 0.3014, Validation R²: 0.69
+Epoch [49/100], Train Loss: 0.3008, Validation Loss: 0.3024, Validation R²: 0.69
+Epoch [50/100], Train Loss: 0.2994, Validation Loss: 0.3028, Validation R²: 0.69
+Epoch [51/100], Train Loss: 0.3010, Validation Loss: 0.3028, Validation R²: 0.69
+Epoch [52/100], Train Loss: 0.3010, Validation Loss: 0.3025, Validation R²: 0.69
+Epoch [53/100], Train Loss: 0.3006, Validation Loss: 0.3048, Validation R²: 0.69
+Epoch [54/100], Train Loss: 0.2975, Validation Loss: 0.3002, Validation R²: 0.69
+Epoch [55/100], Train Loss: 0.2962, Validation Loss: 0.3018, Validation R²: 0.69
+Epoch [56/100], Train Loss: 0.2985, Validation Loss: 0.3026, Validation R²: 0.69
+Epoch [57/100], Train Loss: 0.2979, Validation Loss: 0.3016, Validation R²: 0.69
+Epoch [58/100], Train Loss: 0.3002, Validation Loss: 0.3018, Validation R²: 0.69
+Epoch [59/100], Train Loss: 0.2985, Validation Loss: 0.3025, Validation R²: 0.69
+Epoch [60/100], Train Loss: 0.2988, Validation Loss: 0.3018, Validation R²: 0.69
+Epoch [61/100], Train Loss: 0.2977, Validation Loss: 0.3001, Validation R²: 0.69
+Epoch [62/100], Train Loss: 0.2972, Validation Loss: 0.3007, Validation R²: 0.69
+Epoch [63/100], Train Loss: 0.2946, Validation Loss: 0.2999, Validation R²: 0.69
+Epoch [64/100], Train Loss: 0.2963, Validation Loss: 0.2988, Validation R²: 0.70
+Epoch [65/100], Train Loss: 0.2985, Validation Loss: 0.2991, Validation R²: 0.69
+Epoch [66/100], Train Loss: 0.2941, Validation Loss: 0.2996, Validation R²: 0.69
+Epoch [67/100], Train Loss: 0.2962, Validation Loss: 0.2992, Validation R²: 0.69
+Epoch [68/100], Train Loss: 0.2963, Validation Loss: 0.3008, Validation R²: 0.69
+Epoch [69/100], Train Loss: 0.2965, Validation Loss: 0.2981, Validation R²: 0.70
+Epoch [70/100], Train Loss: 0.2975, Validation Loss: 0.2991, Validation R²: 0.69
+Epoch [71/100], Train Loss: 0.2940, Validation Loss: 0.2991, Validation R²: 0.69
+Epoch [72/100], Train Loss: 0.2989, Validation Loss: 0.2999, Validation R²: 0.69
+Epoch [73/100], Train Loss: 0.2929, Validation Loss: 0.2998, Validation R²: 0.69
+Epoch [74/100], Train Loss: 0.2950, Validation Loss: 0.2999, Validation R²: 0.69
+Epoch [75/100], Train Loss: 0.2938, Validation Loss: 0.2995, Validation R²: 0.69
+Epoch [76/100], Train Loss: 0.2963, Validation Loss: 0.2992, Validation R²: 0.69
+Epoch [77/100], Train Loss: 0.2947, Validation Loss: 0.2994, Validation R²: 0.69
+Epoch [78/100], Train Loss: 0.2931, Validation Loss: 0.2989, Validation R²: 0.70
+Epoch [79/100], Train Loss: 0.2918, Validation Loss: 0.2988, Validation R²: 0.70
+Epoch [80/100], Train Loss: 0.2924, Validation Loss: 0.2991, Validation R²: 0.69
+Epoch [81/100], Train Loss: 0.2922, Validation Loss: 0.2986, Validation R²: 0.70
+Epoch [82/100], Train Loss: 0.2920, Validation Loss: 0.2984, Validation R²: 0.70
+Epoch [83/100], Train Loss: 0.2941, Validation Loss: 0.2989, Validation R²: 0.70
+Epoch [84/100], Train Loss: 0.2917, Validation Loss: 0.2992, Validation R²: 0.69
+Epoch [85/100], Train Loss: 0.2903, Validation Loss: 0.2980, Validation R²: 0.70
+Epoch [86/100], Train Loss: 0.2916, Validation Loss: 0.2987, Validation R²: 0.70
+Epoch [87/100], Train Loss: 0.2941, Validation Loss: 0.2981, Validation R²: 0.70
+Epoch [88/100], Train Loss: 0.2911, Validation Loss: 0.2982, Validation R²: 0.70
+Epoch [89/100], Train Loss: 0.2915, Validation Loss: 0.2978, Validation R²: 0.70
+Epoch [90/100], Train Loss: 0.2907, Validation Loss: 0.2978, Validation R²: 0.70
+Epoch [91/100], Train Loss: 0.2900, Validation Loss: 0.2984, Validation R²: 0.70
+Epoch [92/100], Train Loss: 0.2902, Validation Loss: 0.2978, Validation R²: 0.70
+Epoch [93/100], Train Loss: 0.2913, Validation Loss: 0.2985, Validation R²: 0.70
+Epoch [94/100], Train Loss: 0.2935, Validation Loss: 0.2977, Validation R²: 0.70
+Epoch [95/100], Train Loss: 0.2933, Validation Loss: 0.2986, Validation R²: 0.70
+Epoch [96/100], Train Loss: 0.2930, Validation Loss: 0.2986, Validation R²: 0.70
+Epoch [97/100], Train Loss: 0.2897, Validation Loss: 0.2979, Validation R²: 0.70
+Epoch [98/100], Train Loss: 0.2899, Validation Loss: 0.2985, Validation R²: 0.70
+Epoch [99/100], Train Loss: 0.2939, Validation Loss: 0.2982, Validation R²: 0.70
+Epoch [100/100], Train Loss: 0.2913, Validation Loss: 0.2982, Validation R²: 0.70
+  MLP R2=0.6958  MAPE=24.40%
+
+--- Summary Table ---
+                Scenario         Model          MAE         RMSE   MAPE(%)       R2
+     PA1 (Base Features)    LR Scratch 54427.812650 73040.914284 32.162119 0.592877
+     PA1 (Base Features) Random Forest 38837.114717 55905.782824 22.319202 0.761490
+     PA1 (Base Features)           MLP 34110.078125 51192.939513 18.874307 0.800008
+           PA2 (Reduced)    LR Scratch 55387.559639 73791.856079 32.682328 0.584463
+           PA2 (Reduced) Random Forest 43161.322034 61836.783001 25.005369 0.708199
+           PA2 (Reduced)           MLP 38653.781250 56690.257929 22.123777 0.754749
+PA3_A (Mean Aggregation)    LR Scratch 55947.715003 74713.444134 32.808710 0.574019
+PA3_A (Mean Aggregation) Random Forest 44123.443345 62534.967047 25.668480 0.701572
+PA3_A (Mean Aggregation)           MLP 39556.183594 57742.825147 22.682513 0.745558
+ PA3_B (PCA Aggregation)    LR Scratch 57363.398407 76568.444592 33.391157 0.552603
+ PA3_B (PCA Aggregation) Random Forest 45251.515413 64151.200066 26.359410 0.685947
+ PA3_B (PCA Aggregation)           MLP 43610.683594 63132.214788 24.400752 0.695845
+
+--- Code Cell 9 ---
+[Source Preview]:
+import matplotlib.pyplot as plt
+
+# Find the best performing scenario dynamically based on the highest R2 score
+best_scenario = df.loc[df['R2'].idxmax()]['Scenario']
+[Outputs]:
+Plotting learning curves for the best performing scenario: PA1 (Base Features)
+
+--- Code Cell 12 ---
+[Source Preview]:
+# Tạo bản sao để định dạng hiển thị đẹp mắt
+display_df = df.copy()
+
+# Định dạng các cột số tiền mặt (USD) với dấu phẩy phân tách hàng nghìn
+[Outputs]:
+--- Final Scenario Comparison Results Table ---
+                Scenario         Model MAE (USD) RMSE (USD) MAPE (%) R² Score Train (ms) Inf (ms)
+     PA1 (Base Features)    LR Scratch    54,428     73,041    32.16   0.5929        139      0.2
+     PA1 (Base Features) Random Forest    38,837     55,906    22.32   0.7615      23177    193.2
+     PA1 (Base Features)           MLP    34,110     51,193    18.87   0.8000      38678      1.1
+           PA2 (Reduced)    LR Scratch    55,388     73,792    32.68   0.5845        128      0.3
+           PA2 (Reduced) Random Forest    43,161     61,837    25.01   0.7082      19498    179.9
+           PA2 (Reduced)           MLP    38,654     56,690    22.12   0.7547      38464      1.2
+PA3_A (Mean Aggregation)    LR Scratch    55,948     74,713    32.81   0.5740        124      0.2
+PA3_A (Mean Aggregation) Random Forest    44,123     62,535    25.67   0.7016      18391    178.0
+PA3_A (Mean Aggregation)           MLP    39,556     57,743    22.68   0.7456      38631      1.1
+ PA3_B (PCA Aggregation)    LR Scratch    57,363     76,568    33.39   0.5526        115      0.3
+ PA3_B (PCA Aggregation) Random Forest    45,252     64,151    26.36   0.6859      14594    171.5
+ PA3_B (PCA Aggregation)           MLP    43,611     63,132    24.40   0.6958      38349      1.0
+
+

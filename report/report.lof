@@ -1,0 +1,62 @@
+\babel@toc {english}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces Univariate class distribution of the target email label showing Ham (17,312) vs Spam (21,842).}}{13}{figure.caption.1}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Distribution of email length (characters) for Ham vs. Spam classes.}}{14}{figure.caption.2}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Raw email word count histogram showing a heavily right-skewed distribution.}}{15}{figure.caption.3}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Scatter plot of word count vs character count for email bodies.}}{15}{figure.caption.4}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Box plots comparing email word counts by class.}}{17}{figure.caption.6}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Top 42 common terms compared between Ham and Spam emails.}}{18}{figure.caption.7}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Distribution of URL count in email bodies comparing Ham vs. Spam.}}{18}{figure.caption.8}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Email word counts distribution comparison: Before vs. After Log1p transformation.}}{21}{figure.caption.10}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Frequency bar chart of top sender domains in the dataset.}}{22}{figure.caption.11}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Frequency bar chart of top receiver domains in the dataset.}}{22}{figure.caption.12}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Correlation matrix heatmap of metadata features and the target label.}}{24}{figure.caption.14}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Chi-Square score horizontal bar chart for the top 15 features.}}{25}{figure.caption.15}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Ablation Study metric comparison bar chart across the three feature scenarios.}}{27}{figure.caption.18}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Loss convergence history of the optimal Logistic Regression model.}}{30}{figure.caption.20}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Precision, Recall, and F1-score plotted against decision threshold.}}{31}{figure.caption.22}%
+\contentsline {figure}{\numberline {16}{\ignorespaces ROC Curve for the optimal model on the test set.}}{32}{figure.caption.23}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Confusion Matrix for the model using the optimal threshold of 0.7980.}}{33}{figure.caption.24}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Histograms displaying the distributions of numerical columns: Price Per Unit, Quantity, and Total Spent.}}{36}{figure.caption.26}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Frequency distribution bar charts for categorical features: Category, Payment Method, Location, and Discount Applied.}}{37}{figure.caption.27}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Scatter plot of Price Per Unit vs. Total Spent, colored by purchase Quantity.}}{38}{figure.caption.28}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Box plots showing the distribution of purchase Quantity across different Locations and Payment Methods.}}{39}{figure.caption.29}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Box plots showing the distribution of Quantity (top) and Total Spent (bottom) across product Categories.}}{40}{figure.caption.30}%
+\contentsline {figure}{\numberline {23}{\ignorespaces Correlation matrix heatmap of continuous features: Price Per Unit, Quantity, and Total Spent.}}{41}{figure.caption.31}%
+\contentsline {figure}{\numberline {24}{\ignorespaces Data quality pie charts representing missing rate, duplicate rate, and outlier rate in the retail dataset.}}{42}{figure.caption.34}%
+\contentsline {figure}{\numberline {25}{\ignorespaces Scatter plots of Actual Quantity vs. Predicted Quantity on the test set across scenarios C1, C2, and C3.}}{52}{figure.caption.40}%
+\contentsline {figure}{\numberline {26}{\ignorespaces Training loss convergence history of the custom SVR model.}}{52}{figure.caption.41}%
+\contentsline {figure}{\numberline {27}{\ignorespaces Residual plot (Errors vs. Predicted values) of the optimal SVR model.}}{53}{figure.caption.42}%
+\contentsline {figure}{\numberline {28}{\ignorespaces Metric comparison bar charts for Tuned vs. Untuned SVR models across the 6 configurations.}}{53}{figure.caption.43}%
+\contentsline {figure}{\numberline {29}{\ignorespaces Histograms displaying the distributions of customer Age, Annual Income, and Spending Score.}}{55}{figure.caption.45}%
+\contentsline {figure}{\numberline {30}{\ignorespaces Frequency distribution of customer Gender showing Male vs. Female counts.}}{56}{figure.caption.46}%
+\contentsline {figure}{\numberline {31}{\ignorespaces Bivariate scatter plots showing Age vs. Annual Income and Age vs. Spending Score.}}{56}{figure.caption.48}%
+\contentsline {figure}{\numberline {32}{\ignorespaces Box plots comparing Annual Income and Spending Score by Gender.}}{57}{figure.caption.49}%
+\contentsline {figure}{\numberline {33}{\ignorespaces Pearson correlation matrix heatmap of continuous features.}}{58}{figure.caption.50}%
+\contentsline {figure}{\numberline {34}{\ignorespaces Silhouette score curves across different feature spaces for K from 2 to 9.}}{64}{figure.caption.60}%
+\contentsline {figure}{\numberline {35}{\ignorespaces Elbow (Inertia) and Silhouette score survey curves for each of the 5 feature spaces.}}{65}{figure.caption.61}%
+\contentsline {figure}{\numberline {36}{\ignorespaces Scatter plots of K-Means clustering on the Income-Spending plane before (left, K=5) and after (right, K=4) optimization.}}{67}{figure.caption.63}%
+\contentsline {figure}{\numberline {37}{\ignorespaces K-Means step-by-step trace: Iteration 0 showing initial random centroid placement.}}{68}{figure.caption.65}%
+\contentsline {figure}{\numberline {38}{\ignorespaces K-Means step-by-step trace: Iteration 1 showing centroid adjustments and cluster reassignment.}}{69}{figure.caption.66}%
+\contentsline {figure}{\numberline {39}{\ignorespaces K-Means Iteration 2.}}{69}{figure.caption.67}%
+\contentsline {figure}{\numberline {40}{\ignorespaces K-Means Iteration 3.}}{69}{figure.caption.67}%
+\contentsline {figure}{\numberline {41}{\ignorespaces K-Means Iteration 4.}}{69}{figure.caption.68}%
+\contentsline {figure}{\numberline {42}{\ignorespaces K-Means Iteration 5.}}{69}{figure.caption.68}%
+\contentsline {figure}{\numberline {43}{\ignorespaces K-Means Iteration 6.}}{70}{figure.caption.69}%
+\contentsline {figure}{\numberline {44}{\ignorespaces K-Means Iteration 7 showing final converged state.}}{70}{figure.caption.69}%
+\contentsline {figure}{\numberline {45}{\ignorespaces Original input landscape image resized to 400x225 pixels.}}{72}{figure.caption.73}%
+\contentsline {figure}{\numberline {46}{\ignorespaces Elbow (Inertia) and Silhouette score curves on image pixels for K from 1 to 8.}}{73}{figure.caption.74}%
+\contentsline {figure}{\numberline {47}{\ignorespaces Visual segmentation results comparing RGB, HSV, and CIELAB color spaces at K=3.}}{73}{figure.caption.75}%
+\contentsline {figure}{\numberline {48}{\ignorespaces Centroid coordinate analysis showing the RGB color signatures of the sky, water, and rock clusters.}}{74}{figure.caption.76}%
+\contentsline {figure}{\numberline {49}{\ignorespaces Target Variable (median house value), Median Income, and Ocean Proximity distributions.}}{76}{figure.caption.77}%
+\contentsline {figure}{\numberline {50}{\ignorespaces Pearson correlation matrix heatmap of raw continuous features.}}{77}{figure.caption.78}%
+\contentsline {figure}{\numberline {51}{\ignorespaces Scatter plot of Median Income vs. Median House Value.}}{78}{figure.caption.79}%
+\contentsline {figure}{\numberline {52}{\ignorespaces Geographical scatter plot mapping latitude and longitude to median house values and population density.}}{79}{figure.caption.80}%
+\contentsline {figure}{\numberline {53}{\ignorespaces Box plots comparing house values across different ocean proximity regions.}}{80}{figure.caption.81}%
+\contentsline {figure}{\numberline {54}{\ignorespaces Bar chart displaying the data completeness percentage across all 10 columns.}}{81}{figure.caption.82}%
+\contentsline {figure}{\numberline {55}{\ignorespaces Pearson correlation matrix heatmap for Scenario PA1 (Base Features).}}{84}{figure.caption.84}%
+\contentsline {figure}{\numberline {56}{\ignorespaces Pearson correlation matrix heatmap for Scenario PA2 (Reduced Features).}}{85}{figure.caption.85}%
+\contentsline {figure}{\numberline {57}{\ignorespaces Pearson correlation matrix heatmap for Scenario PA3\_A (Mean Aggregation).}}{86}{figure.caption.86}%
+\contentsline {figure}{\numberline {58}{\ignorespaces Pearson correlation matrix heatmap for Scenario PA3\_B (PCA Aggregation).}}{87}{figure.caption.87}%
+\contentsline {figure}{\numberline {59}{\ignorespaces Loss convergence curves for LR Scratch, Random Forest, and MLP under Scenario PA1.}}{92}{figure.caption.91}%
+\contentsline {figure}{\numberline {60}{\ignorespaces Bar charts comparing MAE, RMSE, MAPE, and R2 across models and scenarios.}}{93}{figure.caption.92}%
+\contentsline {figure}{\numberline {61}{\ignorespaces Predicted vs. Actual house price scatter plots (12-panel grid comparing all models and scenarios).}}{94}{figure.caption.93}%

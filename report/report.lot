@@ -1,0 +1,24 @@
+\babel@toc {english}{}\relax 
+\contentsline {table}{\numberline {1}{\ignorespaces Descriptive Statistics of Word Counts under 1,000 Words}}{16}{table.caption.5}%
+\contentsline {table}{\numberline {2}{\ignorespaces Lab 1 Raw Data Quality Summary}}{20}{table.caption.9}%
+\contentsline {table}{\numberline {3}{\ignorespaces Description of Engineered Metadata Features}}{23}{table.caption.13}%
+\contentsline {table}{\numberline {4}{\ignorespaces Top 15 Features by Chi-Square Score}}{26}{table.caption.16}%
+\contentsline {table}{\numberline {5}{\ignorespaces Ablation Study Results on Test Set}}{26}{table.caption.17}%
+\contentsline {table}{\numberline {6}{\ignorespaces Hyperparameter Grid Search Results}}{29}{table.caption.19}%
+\contentsline {table}{\numberline {7}{\ignorespaces Decision Threshold Scanning Results}}{31}{table.caption.21}%
+\contentsline {table}{\numberline {8}{\ignorespaces Classification Reports: Default (0.5) vs. Optimal (0.7980) Threshold}}{34}{table.caption.25}%
+\contentsline {table}{\numberline {9}{\ignorespaces Variance Inflation Factor (VIF) of Numerical Features}}{41}{table.caption.32}%
+\contentsline {table}{\numberline {10}{\ignorespaces Missing Values Count and Percentage}}{42}{table.caption.33}%
+\contentsline {table}{\numberline {11}{\ignorespaces Sample of Extracted Temporal Features from Transaction Date}}{45}{table.caption.35}%
+\contentsline {table}{\numberline {12}{\ignorespaces Customer Transaction Historical Aggregates (Sample)}}{47}{table.caption.36}%
+\contentsline {table}{\numberline {13}{\ignorespaces Category and Item Target-Encoding Mappings}}{48}{table.caption.37}%
+\contentsline {table}{\numberline {14}{\ignorespaces Preprocessed and Scaled Feature Matrix Output (Sample)}}{48}{table.caption.38}%
+\contentsline {table}{\numberline {15}{\ignorespaces Lab 2 SVR Performance Comparison Across Configurations}}{50}{table.caption.39}%
+\contentsline {table}{\numberline {16}{\ignorespaces Descriptive Statistics of Mall Customer Continuous Features}}{59}{table.caption.52}%
+\contentsline {table}{\numberline {17}{\ignorespaces Mall Customer Feature Quality and Action Plan}}{59}{table.caption.53}%
+\contentsline {table}{\numberline {18}{\ignorespaces Preprocessed Customer Feature Matrix including Engineered and Scaled Columns (Sample)}}{61}{table.caption.56}%
+\contentsline {table}{\numberline {19}{\ignorespaces Mall Customer Feature Preprocessing and Scaling Summary}}{61}{table.caption.57}%
+\contentsline {table}{\numberline {20}{\ignorespaces K-Means Performance Comparison Across Feature Spaces}}{66}{table.caption.62}%
+\contentsline {table}{\numberline {21}{\ignorespaces Inertia and Silhouette Scores on RGB Image Pixels}}{72}{table.caption.72}%
+\contentsline {table}{\numberline {22}{\ignorespaces Lab 4 Scenario Configurations and Features Summary}}{83}{table.caption.83}%
+\contentsline {table}{\numberline {23}{\ignorespaces Lab 4 Final Scenario Comparison Results Table}}{91}{table.caption.90}%
