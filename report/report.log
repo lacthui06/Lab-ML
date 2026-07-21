@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.12) (preloaded format=xelatex 2026.7.13)  14 JUL 2026 13:31
+This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.12) (preloaded format=xelatex 2026.7.13)  19 JUL 2026 10:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1003,43 +1003,19 @@ File: figures/trang_bia_image1.jpeg Graphic file (type bmp)
 <figures/trang_bia_image1.jpeg>
 File: figures/trang_bia_image3.png Graphic file (type bmp)
 <figures/trang_bia_image3.png>
-LaTeX Font Info:    Trying to load font information for U+msa on input line 116
+LaTeX Font Info:    Trying to load font information for U+msa on input line 119
 .
 
 (C:\Users\Win 11\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 116
+LaTeX Font Info:    Trying to load font information for U+msb on input line 119
 .
 
 (C:\Users\Win 11\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <18> on input line 125.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <18> not available
-(Font)              size <17.28> substituted on input line 125.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <12.59995> not available
-(Font)              size <12> substituted on input line 125.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <18> not available
-(Font)              size <17.28> substituted on input line 125.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <12.59995> not available
-(Font)              size <12> substituted on input line 125.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <18> not available
-(Font)              size <17.28> substituted on input line 125.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <12.59995> not available
-(Font)              size <12> substituted on input line 125.
+LaTeX Font Info:    Calculating math sizes for size <14> on input line 129.
 
 [1
 
@@ -1068,7 +1044,7 @@ cluding Engineered and Scaled
 \openout7 = `report.lot'.
 
  [10]
-Overfull \hbox (42.26076pt too wide) in paragraph at lines 166--167
+Overfull \hbox (42.26076pt too wide) in paragraph at lines 170--171
 \TU/TimesNewRoman(0)/m/n/12 generated in the project notebooks: \TU/lmtt/m/n/12
  eda.ipynb\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 feature_engineering.ipy
 nb\TU/TimesNewRoman(0)/m/n/12 , and \TU/lmtt/m/n/12 logistic.ipynb\TU/TimesNewR
@@ -1076,7 +1052,7 @@ oman(0)/m/n/12 .
  []
 
 
-Overfull \hbox (9.45303pt too wide) in paragraph at lines 178--179
+Overfull \hbox (9.45303pt too wide) in paragraph at lines 182--183
 \TU/TimesNewRoman(0)/m/n/12 The raw dataset is loaded from the CSV file \TU/lmt
 t/m/n/12 CEAS_08.csv \TU/TimesNewRoman(0)/m/n/12 located at \TU/lmtt/m/n/12 ../
 data/raw/CEAS_08.csv
@@ -1113,7 +1089,7 @@ File: figures/lab1_eda_fig7.png Graphic file (type bmp)
 File: figures/lab1_eda_fig8.png Graphic file (type bmp)
 <figures/lab1_eda_fig8.png>
  [22]
-Overfull \hbox (9.58578pt too wide) in paragraph at lines 406--420
+Overfull \hbox (9.58578pt too wide) in paragraph at lines 410--424
  [][] 
  []
 
@@ -1130,7 +1106,7 @@ File: figures/lab1_feature_fig4.png Graphic file (type bmp)
 File: lstlang1.sty 2025/11/14 1.11b listings language file
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 551.
+nput line 555.
 [28] [29]
 File: figures/lab1_modeling_fig1.png Graphic file (type bmp)
 <figures/lab1_modeling_fig1.png>
@@ -1143,13 +1119,13 @@ File: figures/lab1_modeling_fig3.png Graphic file (type bmp)
 File: figures/lab1_modeling_fig4.png Graphic file (type bmp)
 <figures/lab1_modeling_fig4.png>
  [32] [33] [34]
-Overfull \hbox (9.8735pt too wide) in paragraph at lines 708--709
+Overfull \hbox (9.8735pt too wide) in paragraph at lines 712--713
 \TU/TimesNewRoman(0)/m/n/12 The exploratory analysis explores the raw data stru
 ctures, correlations, anomalies, missing records,
  []
 
 
-Overfull \hbox (145.41302pt too wide) in paragraph at lines 717--718
+Overfull \hbox (145.41302pt too wide) in paragraph at lines 721--722
 \TU/TimesNewRoman(0)/m/n/12 The raw dataset is loaded from the CSV file \TU/lmt
 t/m/n/12 retail_store_sales.csv \TU/TimesNewRoman(0)/m/n/12 located at \TU/lmtt
 /m/n/12 ../data/raw/retail_store_sales.csv
@@ -1173,7 +1149,7 @@ File: figures/lab2_eda_fig5.png Graphic file (type bmp)
 File: figures/lab2_eda_fig6.png Graphic file (type bmp)
 <figures/lab2_eda_fig6.png>
  [40]
-Overfull \hbox (2.88655pt too wide) in paragraph at lines 810--824
+Overfull \hbox (2.88655pt too wide) in paragraph at lines 814--828
 []\TU/TimesNewRoman(0)/m/n/12 To assess multicollinearity, the notebook compute
 s the Variance Inflation Factor (VIF) among
  []
@@ -1182,24 +1158,24 @@ s the Variance Inflation Factor (VIF) among
 File: figures/lab2_eda_fig7.png Graphic file (type bmp)
 <figures/lab2_eda_fig7.png>
  [42] [43] [44]
-Overfull \hbox (10.34192pt too wide) in paragraph at lines 928--938
+Overfull \hbox (10.34192pt too wide) in paragraph at lines 932--942
  [][] 
  []
 
 [45] [46]
-Overfull \hbox (15.51059pt too wide) in paragraph at lines 963--965
+Overfull \hbox (15.51059pt too wide) in paragraph at lines 967--969
 \TU/TimesNewRoman(0)/m/n/12 and project the features onto the first principal c
 omponent (PC1), which explains **81.54%**
  []
 
 
-Overfull \hbox (0.98209pt too wide) in paragraph at lines 970--971
+Overfull \hbox (0.98209pt too wide) in paragraph at lines 974--975
 \TU/TimesNewRoman(0)/m/n/12 Categorical features (‘Category‘, ‘Payment Method‘,
  ‘Location‘) are converted to binary dummy
  []
 
 [47] [48]
-Overfull \hbox (0.15433pt too wide) in paragraph at lines 1059--1061
+Overfull \hbox (0.15433pt too wide) in paragraph at lines 1063--1065
 \TU/TimesNewRoman(0)/m/n/12 Explain why we cap the outputs: ‘Quantity‘ purchase
 d in supermarket logs is physically bounded
  []
@@ -1229,7 +1205,7 @@ File: figures/lab3_eda_fig4.png Graphic file (type bmp)
 File: figures/lab3_eda_fig5.png Graphic file (type bmp)
 <figures/lab3_eda_fig5.png>
  [58] [59] [60]
-Overfull \hbox (15.69107pt too wide) in paragraph at lines 1285--1287
+Overfull \hbox (15.69107pt too wide) in paragraph at lines 1289--1291
 \TU/TimesNewRoman(0)/m/n/12 spending, low-income segments (potentially debt-fin
 anced or aspirational shoppers), whereas
  []
@@ -1241,7 +1217,7 @@ File: figures/lab3_modeling_fig1.png Graphic file (type bmp)
 File: figures/lab3_modeling_fig2.png Graphic file (type bmp)
 <figures/lab3_modeling_fig2.png>
  [64]
-Overfull \hbox (58.25401pt too wide) in paragraph at lines 1412--1424
+Overfull \hbox (58.25401pt too wide) in paragraph at lines 1416--1428
  [][] 
  []
 
@@ -1278,7 +1254,7 @@ File: figures/lab3_image_fig3.png Graphic file (type bmp)
 File: figures/lab3_image_fig4.png Graphic file (type bmp)
 <figures/lab3_image_fig4.png>
  [74]
-Overfull \hbox (5.89185pt too wide) in paragraph at lines 1626--1627
+Overfull \hbox (5.89185pt too wide) in paragraph at lines 1630--1631
 \TU/TimesNewRoman(0)/m/n/12 project notebooks: \TU/lmtt/m/n/12 eda.ipynb\TU/Tim
 esNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 feature_engineering.ipynb\TU/TimesNewRom
 an(0)/m/n/12 , and \TU/lmtt/m/n/12 modeling_kaggle.ipynb
@@ -1290,7 +1266,7 @@ File: figures/lab4_eda_fig1.png Graphic file (type bmp)
 File: figures/lab4_eda_fig2.png Graphic file (type bmp)
 <figures/lab4_eda_fig2.png>
  [76]
-Overfull \hbox (49.79552pt too wide) in paragraph at lines 1656--1657
+Overfull \hbox (49.79552pt too wide) in paragraph at lines 1660--1661
 []\TU/TimesNewRoman(0)/m/n/12 As shown in Figure [][]50[][], the feature showin
 g the highest positive correlation with \TU/lmtt/m/n/12 median_house_value
  []
@@ -1307,7 +1283,7 @@ File: figures/lab4_eda_fig5.png Graphic file (type bmp)
 File: figures/lab4_eda_fig6.png Graphic file (type bmp)
 <figures/lab4_eda_fig6.png>
  [80]
-Overfull \hbox (35.28697pt too wide) in paragraph at lines 1701--1702
+Overfull \hbox (35.28697pt too wide) in paragraph at lines 1705--1706
 \TU/TimesNewRoman(0)/m/n/12 Scale variables (\TU/lmtt/m/n/12 total_rooms\TU/Tim
 esNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 total_bedrooms\TU/TimesNewRoman(0)/m/n/1
 2 , \TU/lmtt/m/n/12 population\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 hou
@@ -1316,57 +1292,57 @@ oman(0)/m/n/12 )
  []
 
 [81]
-Overfull \hbox (1.22035pt too wide) in paragraph at lines 1706--1707
+Overfull \hbox (1.22035pt too wide) in paragraph at lines 1710--1711
 \TU/TimesNewRoman(0)/m/n/12 The nominal feature \TU/lmtt/m/n/12 ocean_proximity
  \TU/TimesNewRoman(0)/m/n/12 is One-Hot encoded, yielding five binary columns
  []
 
 
-Overfull \hbox (14.04007pt too wide) in paragraph at lines 1712--1713
+Overfull \hbox (14.04007pt too wide) in paragraph at lines 1716--1717
 \TU/TimesNewRoman(0)/m/n/12 Keeps all original features scaled using \TU/lmtt/m
 /n/12 StandardScaler\TU/TimesNewRoman(0)/m/n/12 . Yields a train shape of $\OT1
 /cmr/m/n/12 (16512\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 13)$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1727--1728
+Underfull \hbox (badness 10000) in paragraph at lines 1731--1732
 []\TU/lmtt/m/n/12 longitude\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 latitu
 de\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 housing_median_age\TU/TimesNewR
 oman(0)/m/n/12 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1727--1728
+Underfull \hbox (badness 10000) in paragraph at lines 1731--1732
 \TU/lmtt/m/n/12 total_rooms_log\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 to
 tal_bedrooms_log\TU/TimesNewRoman(0)/m/n/12 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1727--1728
+Underfull \hbox (badness 10000) in paragraph at lines 1731--1732
 \TU/lmtt/m/n/12 population_log\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12 hou
 seholds_log\TU/TimesNewRoman(0)/m/n/12 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1728--1729
+Underfull \hbox (badness 10000) in paragraph at lines 1732--1733
 []\TU/lmtt/m/n/12 housing_median_age\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/
 12 total_rooms_log\TU/TimesNewRoman(0)/m/n/12 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1729--1730
+Underfull \hbox (badness 10000) in paragraph at lines 1733--1734
 []\TU/lmtt/m/n/12 housing_median_age\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/
 12 median_income_log\TU/TimesNewRoman(0)/m/n/12 ,
  []
 
 
-Underfull \hbox (badness 7522) in paragraph at lines 1729--1730
+Underfull \hbox (badness 7522) in paragraph at lines 1733--1734
 \TU/lmtt/m/n/12 rooms_bedrooms_combined\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m
 /n/12 pop_hhold_combined\TU/TimesNewRoman(0)/m/n/12 ,
  []
 
 
-Overfull \hbox (27.36569pt too wide) in paragraph at lines 1723--1733
+Overfull \hbox (27.36569pt too wide) in paragraph at lines 1727--1737
  [][] 
  []
 
@@ -1376,7 +1352,7 @@ File: figures/lab4_feature_fig1.png Graphic file (type bmp)
 File: figures/lab4_feature_fig2.png Graphic file (type bmp)
 <figures/lab4_feature_fig2.png>
  [84]
-Overfull \hbox (2.43362pt too wide) in paragraph at lines 1751--1752
+Overfull \hbox (2.43362pt too wide) in paragraph at lines 1755--1756
 []\TU/TimesNewRoman(0)/m/n/12 Figure [][]56[][] shows that dropping bedrooms an
 d households successfully reduces multicollinear-
  []
@@ -1387,7 +1363,7 @@ File: figures/lab4_feature_fig3.png Graphic file (type bmp)
 File: figures/lab4_feature_fig4.png Graphic file (type bmp)
 <figures/lab4_feature_fig4.png>
  [86] [87] [88] [89] [90]
-Overfull \hbox (9.65628pt too wide) in paragraph at lines 1913--1914
+Overfull \hbox (9.65628pt too wide) in paragraph at lines 1917--1918
 []\TU/TimesNewRoman(0)/b/n/12 Dimensionality Reduction Impact: \TU/TimesNewRoma
 n(0)/m/n/12 Dropping features (PA2) or aggregating them (PA3_A,
  []
@@ -1405,20 +1381,15 @@ File: figures/lab4_modeling_fig3.png Graphic file (type bmp)
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
-
-
-LaTeX Font Warning: Size substitutions with differences
-(Font)              up to 0.72pt have occurred.
-
 Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: E313DF3EB25A2521D479E60F00C3A644;15959.
  ) 
 Here is how much of TeX's memory you used:
- 27547 strings out of 402987
- 550232 string characters out of 5448317
- 1419329 words of memory out of 5000000
- 55794 multiletter control sequences out of 15000+600000
- 638261 words of font info for 113 fonts, out of 8000000 for 9000
+ 27543 strings out of 402987
+ 550338 string characters out of 5448317
+ 1419327 words of memory out of 5000000
+ 55793 multiletter control sequences out of 15000+600000
+ 637377 words of font info for 112 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,12n,94p,924b,1934s stack positions out of 10000i,1000n,20000p,200000b,200000s
 

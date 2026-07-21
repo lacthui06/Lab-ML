@@ -109,7 +109,10 @@ latex_code = r"""\documentclass[12pt,a4paper]{article}
 \vspace{0.5cm}
 \fontsize{18}{22}\selectfont
 \textbf{LAB 1 - 4} \\
-\vspace{2.5cm}
+\vspace{0.3cm}
+\fontsize{14}{18}\selectfont
+\textbf{Group 7} \\
+\vspace{2.0cm}
 
 \centering
 \begin{minipage}{0.85\textwidth}
@@ -122,6 +125,7 @@ latex_code = r"""\documentclass[12pt,a4paper]{article}
 Thái Anh Lạc & 089206000860 & 1, 2, 3, 4 \\
 Phan Huỳnh Vũ Duy & 083026012436 & 2, 3 \\
 Nguyễn Thị Minh Thư & 077306002564 & 3 \\
+Ngô Quốc Kiệt & 089206021006 & 2, 3 \\
 \hline
 \end{tabular}
 \end{minipage}
