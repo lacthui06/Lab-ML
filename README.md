@@ -197,37 +197,11 @@ Bạn có thể chạy thử nghiệm trực tiếp giao diện người dùng c
 
 ---
 
-## 👥 Tác Giả & Đội Ngũ Thực Hiện (Contributors)
-
-Dự án được xây dựng và hoàn thiện bởi sự phối hợp giữa tác giả chính và Trợ lý Lập trình AI Thông minh:
-
-<table align="center">
-  <tr>
-    <td align="center" width="220">
-      <a href="https://github.com/lacthui06">
-        <img src="https://github.com/lacthui06.png" width="100px;" alt="Thái Anh Lạc"/><br />
-        <sub><b>Thái Anh Lạc</b></sub>
-      </a><br />
-      <sub>👑 Lead Developer & Author</sub><br />
-      <a href="mailto:thaianhlac06@gmail.com">✉️ thaianhlac06@gmail.com</a>
-    </td>
-    <td align="center" width="220">
-      <a href="https://deepmind.google">
-        <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" width="100px;" alt="Antigravity"/><br />
-        <sub><b>Antigravity</b></sub>
-      </a><br />
-      <sub>🤖 AI Co-Contributor & Companion</sub><br />
-      <sub>Google DeepMind Agentic AI</sub>
-    </td>
-  </tr>
-</table>
-
----
 
 ## 📝 Giấy Phép (License)
 
 Dự án này được phân phối dưới giấy phép **MIT License**. Bạn hoàn toàn có thể tự do tham khảo, học tập và phát triển thêm.
 
 <p align="center">
-  <i>Cảm ơn bạn đã ghé thăm dự án! Nếu thấy hữu ích, đừng quên để lại một ⭐️ Star để ủng hộ chúng tôi nhé!</i>
+  <i>Cảm ơn bạn đã ghé thăm dự án! Nếu thấy hữu ích, đừng quên để lại một ⭐️ Star để ủng hộ dự án nhé!</i>
 </p>
